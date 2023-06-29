@@ -28,7 +28,12 @@
         </div>
       </div>
     </div>
-    <ChatsView class="mt-[100px]" />
+    <div v-if="showFindFriends">
+      <ChatsView class="mt-[100px]" />
+    </div>
+    <div v-else>
+      <FindFriendsView class="pt-28" />
+    </div>
     <div v-if="open">
       <MessageView />
     </div>
@@ -39,11 +44,7 @@
         <div class="grid h-screen place-items-center">
           <div>
             <div class="w-full flex items-center justify-center">
-              <img
-                width="375"
-                src="https://random.imagecdn.app/400/200"
-                alt=""
-              />
+              <img width="375" src="w-web-not-loaded-chat.png" alt="" />
             </div>
             <div class="text-[32px] text-gray-500 font-light mt-10">
               WhatsApp Web
@@ -66,13 +67,15 @@
 
 <script setup>
 import ChatsView from "./ChatsView.vue";
+import FindFriendsView from "./FindFriendsView.vue";
 import MessageView from "./MessageView.vue";
 import AccountGroupIcon from "vue-material-design-icons/AccountGroup.vue";
 import DotsVerticalIcon from "vue-material-design-icons/DotsVertical.vue";
 import MagnifyIcon from "vue-material-design-icons/Magnify.vue";
-import {ref} from 'vue';
+import { ref } from "vue";
 
-let open = ref(true)
+let open = ref(true);
+let showFindFriends = ref(false);
 
 </script>
 
