@@ -26,6 +26,7 @@ const router = useRouter();
 const userStore = useUserStore()
 
 const callback = async (response) =>{
+  console.log(response);
   await userStore.getUserDetailsFromGoogle(response)
   setTimeout(()=>{
       router.push('/');

@@ -53,6 +53,7 @@
 </template>
 
 <script setup>
+import {onMounted,ref} from 'vue'
 import { useUserStore } from '../store/user-store';
 import {useRouter} from 'vue-router';
 const userStore = useUserStore()
@@ -63,7 +64,7 @@ import MessageView from "./MessageView.vue";
 import AccountGroupIcon from "vue-material-design-icons/AccountGroup.vue";
 import DotsVerticalIcon from "vue-material-design-icons/DotsVertical.vue";
 import MagnifyIcon from "vue-material-design-icons/Magnify.vue";
-import { ref } from "vue";
+
 
 let open = ref(true);
 let showFindFriends = ref(false);
@@ -71,6 +72,15 @@ const logout = ()=>{
   let res = confirm('你確定要離開嗎?')
   if (res) userStore.logout(); router.push('/login')
 }
+
+
+onMounted(() => {
+  try {
+      userStore.getAllUsers()
+  } catch (error) {
+    console.log(error)
+  }
+}),
 </script>
 
 <style lang="scss" scoped></style>

@@ -1,7 +1,9 @@
 // stores/counter.js
 import { defineStore } from "pinia";
 import axios from "axios";
-
+import { v4 as uuid } from "uuid";
+import { db } from "../firebase-init";
+import { setDoc, getDoc, doc, collection } from "firebase/firestore";
 axios.defaults.baseURL = "http://localhost:4001/";
 
 export const useUserStore = defineStore("user", {
@@ -11,6 +13,7 @@ export const useUserStore = defineStore("user", {
     picture: "",
     firstName: "",
     lastName: "",
+    allUsers:[]
   }),
   actions: {
     async getUserDetailsFromGoogle(data) {
@@ -18,6 +21,9 @@ export const useUserStore = defineStore("user", {
         let res = await axios.post("api/google-login", {
           token: data.credential,
         });
+        let userExists = await this.checkIfUserExists(res.data.sub);
+        // 檢查用戶是否存在
+        if (!userExists) await this.saveUserDetails(res);
         console.log(res);
         this.sub = res.data.sub;
         this.email = res.data.email;
@@ -28,6 +34,34 @@ export const useUserStore = defineStore("user", {
         console.log(error);
       }
     },
+    async getAllUsers () {
+      const querySnapshot = await getDocs(collection(db, "users"))
+      let results = []
+      querySnapshot.forEach(doc => {results.push(doc.data())})
+      if(results.length){
+        this.allUsers = []
+        results.forEach(res =>{ this.allUsers.push(res) })
+      }
+    }
+    async checkIfUserExists(id) {
+      const docRef = doc(db, "users", id);
+      const docSnap = await getDoc(docRef);
+      return docSnap.exists();
+    },
+    async saveUserDetails(res) {
+      try {
+        await setDoc(doc(db, "users", res.data.sub), {
+          sub: res.data.sub,
+          email: res.data.email,
+          picture: res.data.picture,
+          firstName: res.data.given_name,
+          lastName: res.data.family_name,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     logout() {
       this.sub = "";
       this.email = "";
@@ -36,5 +70,5 @@ export const useUserStore = defineStore("user", {
       this.lastName = "";
     },
   },
-  persist: true,  
+  persist: true,
 });
