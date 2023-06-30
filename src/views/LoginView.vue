@@ -1,9 +1,7 @@
 <template>
   <div class="w-full">
     <div class="bg-teal-600 z-[-1] w-full h-[225px] fixed top-0"></div>
-    <div
-      class="bg-[#191919] z-[-1] w-full h-[calc(100vh-225px)] fixed bottom-0"
-    ></div>
+    <div class="bg-[#191919] z-[-1] w-full h-[calc(100vh-225px)] fixed bottom-0"></div>
     <div class="max-w-xl mx-auto">
       <div class="mt-10 flex items-center w-full">
         <img src="whatsapp-logo.png" width="40" alt="" />
@@ -22,18 +20,17 @@
 </template>
 
 <script setup>
-import axios from 'axios'
-    const callback = async (response) =>{
-        console.log(response)
+import { useUserStore } from '../store/user-store';
+import {useRouter} from 'vue-router'
+const router = useRouter();
+const userStore = useUserStore()
 
-      try {
-        let res = await axios.post('https://localhost:4001/api/google-login',{
-            token: response.credential
-        })
-      } catch (error) {
-        console.log(error)
-      }
-    } 
+const callback = async (response) =>{
+  await userStore.getUserDetailsFromGoogle(response)
+  setTimeout(()=>{
+      router.push('/');
+  },200)
+} 
 </script>
 
 <style lang="scss" scoped></style>
