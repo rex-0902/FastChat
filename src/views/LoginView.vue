@@ -5,13 +5,13 @@
 
       <div class="max-w-xl mx-auto">
           <div class="mt-10 flex items-center w-full">
-              <img width="40" src="whatsapp-logo.png" alt="">
-              <div class="font-semibold text-gray-100 ml-6">WHATSAPP WEB</div>
+              <img width="40" src="fastChat.png" alt="">
+              <div class="font-semibold text-gray-100 ml-6">fast chat</div>
           </div>
 
           <div class="bg-white z-10 p-24 m-6 mt-10">
               <div class="text-center text-4xl text-gray-700 font-light pb-10">
-                  WhatsApp Clone
+                  Fast Chat
               </div>
               <div class="w-full flex justify-center bg-[#fff] p-3 rounded-md">
                   <GoogleLogin :callback="callback"/>

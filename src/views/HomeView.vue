@@ -52,18 +52,14 @@
         <div class="grid h-screen place-items-center">
           <div>
             <div class="w-full flex items-center justify-center">
-              <img width="375" src="w-web-not-loaded-chat.png" alt="" />
+              <img width="375" src="notChat.png" alt="" />
             </div>
             <div class="text-[32px] text-gray-500 font-light mt-10">
-              WhatsApp Web
+              FastChat
             </div>
             <div class="text-[14px] text-gray-600 mt-2">
               <div>
-                Send and receive messages without keeping your phone online.
-              </div>
-              <div>
-                Use WhatsApp on up to 4 linked devices and 1 phone at the same
-                time.
+                目前沒有訊息
               </div>
             </div>
           </div>
