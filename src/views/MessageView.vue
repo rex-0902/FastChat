@@ -63,11 +63,13 @@
             autocomplete="off"
             type="text"
             placeholder="Message"
+            @keyup.enter="sendMessage"
           />
 
           <button
             :disabled="disableBtn"
             @click="sendMessage"
+           
             class="ml-3 p-2 w-12 flex items-center justify-center"
           >
             <SendIcon fillColor="#515151" />
