@@ -8,10 +8,10 @@
               <div class="w-full">
 
                   <div class="flex justify-between items-center">
-                      <div class="text-[15px] text-gray-600">{{  user.firstName  }} {{  user.lastName  }}</div>
+                      <div class="text-[15px] text-gray-600"> {{  user.lastName  }}{{  user.firstName  }}</div>
                   </div>
                   <div class="flex items-center">
-                      <div class="text-[15px] text-gray-500">Hi, 我是 {{  user.firstName  }} {{  user.lastName  }}!</div>
+                      <div class="text-[15px] text-gray-500">Hi, 我是{{  user.lastName  }} {{  user.firstName  }} !</div>
                   </div>
 
               </div>
