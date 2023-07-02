@@ -161,7 +161,7 @@ const sendMessage = async () => {
 
 <style>
 #BG {
-  background: url("/images/message-bg.png") no-repeat;
+  background: url("../assets/message-bg.png") no-repeat;
   width: 100%;
   height: 100%;
   position: fixed;

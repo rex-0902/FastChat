@@ -5,7 +5,7 @@
 
       <div class="max-w-xl mx-auto">
           <div class="mt-10 flex items-center w-full">
-              <img width="40" src="/images/fastChat.png" alt="">
+              <img width="40" src="../assets/fastChat.png" alt="">
               <div class="font-semibold text-gray-100 ml-6">fast chat</div>
           </div>
 
