@@ -42,6 +42,7 @@ const createNewChat = (user) => {
       sub1: sub.value,
       sub2: user.sub,
       firstName: user.firstName,
+      lastName: user.lastName,
       picture: user.picture,
   })
 }

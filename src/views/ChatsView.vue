@@ -34,9 +34,9 @@ const openChat = async (chat) => {
         sub1: chat.sub1,
         sub2: chat.sub2,
         firstName: chat.user.firstName,
+        lastName: chat.user.lastName,
         picture: chat.user.picture,
     })
-    console.log(userDataForChat)
     try {
         await userStore.getChatById(chat.id)
         let data = {

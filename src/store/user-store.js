@@ -36,7 +36,6 @@ export const useUserStore = defineStore("user", {
         let res = await axios.post("api/google-login", {
           token: data.credential,
         });
-        console.log(res);
         let userExists = await this.checkIfUserExists(res.data.sub);
         // 檢查用戶是否存在
         if (!userExists) await this.saveUserDetails(res);

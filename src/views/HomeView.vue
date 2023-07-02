@@ -9,6 +9,7 @@
           :src="userStore.picture || ''"
           alt=""
         />
+       <div class="text-left w-full pl-2"> {{ userStore.lastName }}{{ userStore.firstName }}</div>
         <div class="flex items-center justify-center">
           <AccountGroupIcon fillColor="#515151" class="mr-6" />
           <DotsVerticalIcon
