@@ -3,6 +3,8 @@ import { defineStore } from "pinia";
 import axios from "axios";
 import { v4 as uuid } from "uuid";
 import { db } from "../firebase-init";
+import { useRouter } from 'vue-router';
+const router = useRouter()
 import {
   setDoc,
   getDoc,
@@ -36,6 +38,7 @@ export const useUserStore = defineStore("user", {
         let res = await axios.post("api/google-login", {
           token: data.credential,
         });
+        console.log(res)
         let userExists = await this.checkIfUserExists(res.data.sub);
         // 檢查用戶是否存在
         if (!userExists) await this.saveUserDetails(res);
@@ -45,6 +48,8 @@ export const useUserStore = defineStore("user", {
         this.picture = res.data.picture;
         this.firstName = res.data.given_name;
         this.lastName = res.data.family_name;
+
+        setTimeout(() => { router.push('/') }, 200)
       } catch (error) {
         console.log(error);
       }
@@ -215,11 +220,12 @@ export const useUserStore = defineStore("user", {
       }
     },
     logout() {
-      deleteCollection("users")
+      this.deleteCollection("users")
         .then(() => {
           console.log("Collection deleted successfully.");
         })
         .catch((error) => {
+          console.log('123')
           console.error("Error deleting collection:", error);
         });
       this.sub = "";
