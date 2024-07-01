@@ -1,10 +1,11 @@
 // stores/counter.js
 import { defineStore } from "pinia";
+import Swal from 'sweetalert2';
 import axios from "axios";
 import { v4 as uuid } from "uuid";
 import { db } from "../firebase-init";
-import { useRouter } from 'vue-router';
-const router = useRouter()
+
+
 import {
   setDoc,
   getDoc,
@@ -31,8 +32,14 @@ export const useUserStore = defineStore("user", {
     showFindFriends: false,
     currentChat: null,
     removeUsersFromFindFriends: [],
+    userID:""
   }),
   actions: {
+      // 檢查fastChat id 沒被註冊過
+      async checkfastChatId (data){
+        const allFastChatIds = await getDocs(collection(db, "fastChatId"));
+        return allFastChatIds.docs.some(doc => doc.id === data);
+         },
     async getUserDetailsFromGoogle(data) {
       try {
         let res = await axios.post("api/google-login", {
@@ -40,16 +47,17 @@ export const useUserStore = defineStore("user", {
         });
         console.log(res)
         let userExists = await this.checkIfUserExists(res.data.sub);
-        // 檢查用戶是否存在
-        if (!userExists) await this.saveUserDetails(res);
+        // 檢查用戶是否註冊
+        if (!userExists){
+          await this.saveUserDetails(res);
+        } 
         await this.getAllUsers();
         this.sub = res.data.sub;
         this.email = res.data.email;
         this.picture = res.data.picture;
         this.firstName = res.data.given_name;
         this.lastName = res.data.family_name;
-
-        setTimeout(() => { router.push('/') }, 200)
+     
       } catch (error) {
         console.log(error);
       }
@@ -61,32 +69,78 @@ export const useUserStore = defineStore("user", {
       querySnapshot.forEach((doc) => {
         results.push(doc.data());
       });
-
+      console.log(results)
       if (results.length) {
-        this.allUsers = [];
-        results.forEach((res) => {
-          this.allUsers.push(res);
-        });
+        this.allUsers = results;
+      
+        this.showFindFriends = true
       }
     },
+    //檢查用戶是否存在
     async checkIfUserExists(id) {
       const docRef = doc(db, "users", id);
       const docSnap = await getDoc(docRef);
       return docSnap.exists();
     },
-
+    // 儲存用戶詳細信息
     async saveUserDetails(res) {
-      try {
-        await setDoc(doc(db, "users", res.data.sub), {
-          sub: res.data.sub,
-          email: res.data.email,
-          picture: res.data.picture,
-          firstName: res.data.given_name,
-          lastName: res.data.family_name,
-        });
-      } catch (error) {
-        console.log(error);
-      }
+      // try {
+        Swal.fire({
+          title: "第一次登入請先設定fastChat id",
+          input: "text",
+          inputAttributes: {
+            autocapitalize: "off"
+          },
+          showCancelButton: true,
+          allowOutsideClick: false,
+          confirmButtonText: "確定",
+          CancelButtonText: "取消",
+          showLoaderOnConfirm: true,
+          inputValidator: async (value) => {
+            const regex = /^[a-zA-Z0-9]*$/;
+            if (!value) {
+              return '欄位不可空白';
+            } else if (!regex.test(value)) {
+              return 'fastChat id只能包含英文字母和數字！';
+            } else if (await this.checkfastChatId(value)) {
+              return 'fastChat id重複，請想新的';
+            }
+          },
+          allowOutsideClick: () => !Swal.isLoading()
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            const fastChatId = result.value;
+            try {
+           
+  
+              await setDoc(doc(db, "fastChatId", fastChatId), {
+                fastChatId,
+                sub: res.data.sub,
+                email: res.data.email,
+                picture: res.data.picture,
+                firstName: res.data.given_name,
+                lastName: res.data.family_name,
+              });
+  
+             
+            
+            } catch (error) {
+              console.log(error);
+            }
+          }
+        }).then(async ()=>{
+
+          await setDoc(doc(db, "users", res.data.sub), {
+            sub: res.data.sub,
+            email: res.data.email,
+            picture: res.data.picture,
+            firstName: res.data.given_name,
+            lastName: res.data.family_name,
+            allDriends:''
+            
+          });
+        })
+     
     },
     async getChatById(id) {
       onSnapshot(doc(db, "chat", id), (doc) => {
@@ -95,6 +149,7 @@ export const useUserStore = defineStore("user", {
         this.currentChat = res;
       });
     },
+    //按使用者取得所有聊天記錄
     getAllChatsByUser() {
       const q = query(collection(db, "chat"));
 
@@ -219,6 +274,7 @@ export const useUserStore = defineStore("user", {
         throw error;
       }
     },
+  
     logout() {
       this.deleteCollection("users")
         .then(() => {

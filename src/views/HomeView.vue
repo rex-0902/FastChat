@@ -11,7 +11,7 @@
         />
        <div class="text-left w-full pl-2"> {{ userStore.lastName }}{{ userStore.firstName }}</div>
         <div class="flex items-center justify-center">
-          <AccountGroupIcon fillColor="#515151" class="mr-6" @click="showFindFriends = false" />
+          <AccountGroupIcon fillColor="#515151" class="mr-6 cursor-pointer" />
           <DotsVerticalIcon
             @click="logout"
             fillColor="#515151"
@@ -26,7 +26,7 @@
         >
           <MagnifyIcon fillColor="#515151" :size="18" class="ml-2" />
           <input
-          @click="showFindFriends = !showFindFriends" 
+         
             class="ml-5 apperance-none w-full bg-[#F0F0F0] py-1.5 px-2.5 text-gray-700 leading-tight focus:outline-none focus:shadow-outline placeholder:text-sm placeholder:text-gray-500"
             autocomplete="off"
             type="text"
