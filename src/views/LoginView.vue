@@ -26,20 +26,17 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref , watch } from "vue";
 import { useUserStore } from "../store/user-store";
 import { useRouter } from "vue-router";
-const userStore = useUserStore();
 const router = useRouter();
-let userKey = ref("");
+const userStore = useUserStore();
+
 const callback = async (response) => {
-  await userStore.getUserDetailsFromGoogle(response).then(async () => {
-    setTimeout(() => {
-    
-      router.push("/");
-    }, 200);
-  });
+  await userStore.getUserDetailsFromGoogle(response,router)
 };
+
+
 </script>
 
 <style lang="scss" scoped></style>

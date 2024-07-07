@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import axios from "axios";
 import { v4 as uuid } from "uuid";
 import { db } from "../firebase-init";
+import { useRouter } from "vue-router";
 
 
 import {
@@ -32,7 +33,8 @@ export const useUserStore = defineStore("user", {
     showFindFriends: false,
     currentChat: null,
     removeUsersFromFindFriends: [],
-    userID:""
+    userID:"",
+    loginStatus:false
   }),
   actions: {
       // 檢查fastChat id 沒被註冊過
@@ -40,31 +42,35 @@ export const useUserStore = defineStore("user", {
         const allFastChatIds = await getDocs(collection(db, "fastChatId"));
         return allFastChatIds.docs.some(doc => doc.id === data);
          },
-    async getUserDetailsFromGoogle(data) {
+    async getUserDetailsFromGoogle(data, router) {
       try {
         let res = await axios.post("api/google-login", {
           token: data.credential,
         });
-        console.log(res)
+     
         let userExists = await this.checkIfUserExists(res.data.sub);
         // 檢查用戶是否註冊
         if (!userExists){
-          await this.saveUserDetails(res);
+          await this.saveUserDetails(res, router);
+        }else{
+        
+          await this.getAllUsers();
+          this.sub = res.data.sub;
+          this.email = res.data.email;
+          this.picture = res.data.picture;
+          this.firstName = res.data.given_name;
+          this.lastName = res.data.family_name;
+          this.loginStatus = true;
+          router.push("/");
         } 
-        await this.getAllUsers();
-        this.sub = res.data.sub;
-        this.email = res.data.email;
-        this.picture = res.data.picture;
-        this.firstName = res.data.given_name;
-        this.lastName = res.data.family_name;
-     
+
       } catch (error) {
         console.log(error);
       }
     },
     async getAllUsers() {
       // 取得已經註冊的用戶
-      const querySnapshot = await getDocs(collection(db, "users"));
+      const querySnapshot = await getDocs(collection(db, "users")); 
       let results = [];
       querySnapshot.forEach((doc) => {
         results.push(doc.data());
@@ -76,6 +82,52 @@ export const useUserStore = defineStore("user", {
         this.showFindFriends = true
       }
     },
+    async searchFriend(addUserId){
+      const fastChatCollection = collection(db, 'fastChatId');
+      const fastChatSnapshot = await getDocs(fastChatCollection);
+      let matchingUsers = null;
+      console.log(addUserId)
+      for (const fastChatDoc of fastChatSnapshot.docs) {
+   
+        if (fastChatDoc.id === addUserId) {
+          console.log(fastChatDoc._document.data.value.mapValue.fields)
+          matchingUsers = fastChatDoc._document.data.value.mapValue.fields
+        }
+      }
+      return matchingUsers
+      // console.log(q)
+    },
+    async addFriend( addFriendSub){
+      const userDocRef = doc(db, "users", addFriendSub);
+      const userDocSnapshot = await getDoc(userDocRef);
+      if (userDocSnapshot.exists()) {
+        let howAboutThisPerson = userDocSnapshot.data().howAboutThisPerson || [];
+    
+        // 查找是否已有相同 fastChatId
+        const existingUserIndex = howAboutThisPerson.findIndex(user => user.fastChatId === this.userID);
+    
+        if (existingUserIndex !== -1) {
+          // 覆蓋已有對象
+          let userInfo = {
+            sub: this.sub,
+            email: this.email,
+            picture: this.picture,
+            firstName:  this.firstName,
+            lastName: this.lastName,
+          }
+          howAboutThisPerson[existingUserIndex] = userInfo;
+        } else {
+          // 增加新對象
+          howAboutThisPerson.push(userInfo);
+        }
+    
+        // 更新文檔
+        await updateDoc(userDocRef, { howAboutThisPerson });
+      } else {
+        console.log("Document does not exist!");
+      }
+    
+    },
     //檢查用戶是否存在
     async checkIfUserExists(id) {
       const docRef = doc(db, "users", id);
@@ -83,7 +135,7 @@ export const useUserStore = defineStore("user", {
       return docSnap.exists();
     },
     // 儲存用戶詳細信息
-    async saveUserDetails(res) {
+    async saveUserDetails(res, router) {
       // try {
         Swal.fire({
           title: "第一次登入請先設定fastChat id",
@@ -108,8 +160,11 @@ export const useUserStore = defineStore("user", {
           },
           allowOutsideClick: () => !Swal.isLoading()
         }).then(async (result) => {
+          // isSetFastChatId
+          let isSetFastChatId = false;
           if (result.isConfirmed) {
             const fastChatId = result.value;
+            isSetFastChatId = true;
             try {
            
   
@@ -127,18 +182,32 @@ export const useUserStore = defineStore("user", {
             } catch (error) {
               console.log(error);
             }
+          }else{
+            isSetFastChatId = false;
           }
-        }).then(async ()=>{
+          return isSetFastChatId
+        }).then(async (isSetFastChatId)=>{
+          if(isSetFastChatId == true){
 
-          await setDoc(doc(db, "users", res.data.sub), {
-            sub: res.data.sub,
-            email: res.data.email,
-            picture: res.data.picture,
-            firstName: res.data.given_name,
-            lastName: res.data.family_name,
-            allDriends:''
-            
-          });
+            await setDoc(doc(db, "users", res.data.sub), {
+              sub: res.data.sub,
+              email: res.data.email,
+              picture: res.data.picture,
+              firstName: res.data.given_name,
+              lastName: res.data.family_name,
+              allFriends:'',
+              howAboutThisPerson:[],
+              
+            });
+         
+            this.sub = res.data.sub;
+            this.email = res.data.email;
+            this.picture = res.data.picture;
+            this.firstName = res.data.given_name;
+            this.lastName = res.data.family_name;
+            this.loginStatus = true;
+            router.push("/");
+          }
         })
      
     },
@@ -243,47 +312,10 @@ export const useUserStore = defineStore("user", {
         { merge: true }
       );
     },
-    async deleteCollection(collectionPath) {
-      const collectionRef = db.collection(collectionPath);
-      const batchSize = 100;
-
-      try {
-        // 取得所有集合文件
-        const query = collectionRef.orderBy("__name__").limit(batchSize);
-        const snapshot = await query.get();
-
-        // 如果沒有文件，直接返回
-        if (snapshot.size === 0) {
-          return;
-        }
-
-        // 建立一個batch操作
-        const batch = db.batch();
-        snapshot.docs.forEach((doc) => {
-          // 將每個文件加入batch操作中的刪除操作
-          batch.delete(doc.ref);
-        });
-
-        // 執行batch操作
-        await batch.commit();
-
-        // 遞迴刪除集合的下一批文件
-        return deleteCollection(collectionPath);
-      } catch (error) {
-        console.error("Error deleting collection:", error);
-        throw error;
-      }
-    },
+   
   
     logout() {
-      this.deleteCollection("users")
-        .then(() => {
-          console.log("Collection deleted successfully.");
-        })
-        .catch((error) => {
-          console.log('123')
-          console.error("Error deleting collection:", error);
-        });
+  
       this.sub = "";
       this.email = "";
       this.picture = "";
@@ -295,6 +327,9 @@ export const useUserStore = defineStore("user", {
       this.removeUsersFromFindFriends = [];
       this.showFindFriends = false;
       this.currentChat = false;
+      this.loginStatus = false;
+      this.userID = "";
+      
     },
   },
   persist: true,

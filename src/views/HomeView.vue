@@ -9,14 +9,18 @@
           :src="userStore.picture || ''"
           alt=""
         />
-       <div class="text-left w-full pl-2"> {{ userStore.lastName }}{{ userStore.firstName }}</div>
+        <div class="text-left w-full pl-2">
+          {{ userStore.lastName }}{{ userStore.firstName }}
+        </div>
         <div class="flex items-center justify-center">
           <AccountGroupIcon fillColor="#515151" class="mr-6 cursor-pointer" />
-          <DotsVerticalIcon
-            @click="logout"
-            fillColor="#515151"
-            class="cursor-pointer"
-          />
+          <div class="relative">
+            <DotsVerticalIcon fillColor="#515151" class="cursor-pointer" />
+            <div class="flex-col absolute bg-white px-4 border-l-gray-800">
+              <button @click="settings" class="break-keep">設定</button>
+              <button @click="logout">登出</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -26,7 +30,6 @@
         >
           <MagnifyIcon fillColor="#515151" :size="18" class="ml-2" />
           <input
-         
             class="ml-5 apperance-none w-full bg-[#F0F0F0] py-1.5 px-2.5 text-gray-700 leading-tight focus:outline-none focus:shadow-outline placeholder:text-sm placeholder:text-gray-500"
             autocomplete="off"
             type="text"
@@ -59,9 +62,7 @@
               FastChat
             </div>
             <div class="text-[14px] text-gray-600 mt-2">
-              <div>
-                目前沒有訊息
-              </div>
+              <div>目前沒有訊息</div>
             </div>
           </div>
         </div>
@@ -81,7 +82,7 @@ import { onMounted } from "vue";
 import { useUserStore } from "../store/user-store";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -89,20 +90,23 @@ const { showFindFriends, userDataForChat } = storeToRefs(userStore);
 
 const logout = () => {
   Swal.fire({
-  title: '你確定要離開嗎?',
-  icon: 'warning',
-  showCancelButton: true,
-  confirmButtonColor: '#3085d6',
-  cancelButtonColor: '#d33',
-  confirmButtonText: '沒錯'
-}).then((result) => {
-  if (result.isConfirmed) {
-    userStore.logout();
-    router.push("/login");
-  };
-})
-
+    title: "你確定要離開嗎?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "沒錯",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      userStore.logout();
+      router.push("/login");
+    }
+  });
 };
+
+let settings = () =>{
+  router.push("/settings");
+}
 
 onMounted(async () => {
   try {
