@@ -15,10 +15,10 @@
         <div class="flex items-center justify-center">
           <AccountGroupIcon fillColor="#515151" class="mr-6 cursor-pointer" />
           <div class="relative">
-            <DotsVerticalIcon fillColor="#515151" class="cursor-pointer" />
-            <div class="flex-col absolute bg-white px-4 border-l-gray-800">
-              <button @click="settings" class="break-keep">設定</button>
-              <button @click="logout">登出</button>
+            <DotsVerticalIcon @click="isShowSettings = !isShowSettings" fillColor="#515151" class="cursor-pointer"  />
+            <div v-if="isShowSettings == true"  class="flex-col absolute bg-white px-4 border-l-gray-800">
+              <button @click="settings" class="break-keep p-4">設定</button>
+              <button @click="logout" class="break-keep p-4">登出</button>
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@ import MessageView from "./MessageView.vue";
 import AccountGroupIcon from "vue-material-design-icons/AccountGroup.vue";
 import DotsVerticalIcon from "vue-material-design-icons/DotsVertical.vue";
 import MagnifyIcon from "vue-material-design-icons/Magnify.vue";
-import { onMounted } from "vue";
+import { onMounted , ref } from "vue";
 import { useUserStore } from "../store/user-store";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -103,6 +103,8 @@ const logout = () => {
     }
   });
 };
+// 是否顯示設定選項
+let isShowSettings = ref(false);
 
 let settings = () =>{
   router.push("/settings");
