@@ -112,7 +112,7 @@ let settings = () =>{
 
 onMounted(async () => {
   try {
-    userStore.getAllUsers();
+
     await userStore.getAllChatsByUser();
   } catch (error) {
     console.log(error);

@@ -18,7 +18,7 @@
            </div>
 
            <div v-if="searchUser.fastChatId !== null && isShowHiddenUser" class="mt-4 p-4 bg-gray-100 rounded-md shadow-md">
-              <div>
+              <div v-if="addFriendState == 'canJoin'">
                  <img v-if="searchUser.picture" :src="searchUser.picture" alt="Search User Picture" class="w-16 h-16 rounded-full mx-auto mb-2">
                    <div class="text-center">{{ searchUser.lastName }}{{ searchUser.firstName }}</div>
                    <div  class="mt-6 flex justify-between">
@@ -26,13 +26,15 @@
                       <button @click="addFriend" class=" mt-2 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">加入</button>
                    </div>
               </div>
-              <div>
+              <div v-if="addFriendState == 'alreadyAfriend'">
                   <img v-if="searchUser.picture" :src="searchUser.picture" alt="Search User Picture" class="w-16 h-16 rounded-full mx-auto mb-2">
                    <div class="text-center">{{ searchUser.lastName }}{{ searchUser.firstName }}</div>
                    <div class="text-center">已成為好友</div>
               </div>
-              <div>
-                  
+              <div  v-if="addFriendState == 'same'">
+                  <img v-if="searchUser.picture" :src="searchUser.picture" alt="Search User Picture" class="w-16 h-16 rounded-full mx-auto mb-2">
+                   <div class="text-center">{{ searchUser.lastName }}{{ searchUser.firstName }}</div>
+                   <div class="text-center">這是你自己</div>
               </div>
             </div>
            <div v-else-if="searchUser.fastChatId == null && isShowHiddenUser" class="mt-4 text-center ">
@@ -64,13 +66,13 @@ import Swal from 'sweetalert2';
 import axios from "axios";
 
 const userStore = useUserStore();
-const { picture, lastName, firstName, userID } = storeToRefs(userStore);
+const { picture, lastName, firstName, userID, sub } = storeToRefs(userStore);
 
 // let userkey = ref('');
 let searchUserKey = ref('');
 let isAddFriendVisible = ref(false);
 
-// 添加好友欄位狀態 (same / notFound / turnUp)
+// 添加好友欄位狀態 (same / notFound / canJoin / alreadyAfriend)
 let addFriendState = ref('');
 
 
@@ -90,9 +92,21 @@ let showAddFriend = () => {
 };
 
 let searchFriend = () => {
-   console.log(userID)
-   if(searchUserKey.value == userID ){
-      searchUser.value.fastChatId = null
+   // 先重置
+   searchUser.value.fastChatId = null;
+   searchUser.value.firstName = null;
+   searchUser.value.lastName = null;
+   searchUser.value.picture = null;
+   searchUser.value.sub =null;
+
+   if(searchUserKey.value == userID.value ){
+      searchUser.value.fastChatId = userID.value
+      searchUser.value.firstName = firstName.value;
+      searchUser.value.lastName = lastName.value;
+      searchUser.value.picture = picture.value;
+      searchUser.value.sub = sub.value;
+      addFriendState.value = 'same';
+      isShowHiddenUser.value = true;
    }else{
 
       userStore.searchFriend(searchUserKey.value).then((res) => {
@@ -104,6 +118,7 @@ let searchFriend = () => {
             searchUser.value.picture = res.picture.stringValue;
             searchUser.value.sub = res.sub.stringValue;
             console.log(searchUser.value);
+            addFriendState.value = 'canJoin'
          }
          isShowHiddenUser.value = true;
       });

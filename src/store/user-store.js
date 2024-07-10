@@ -29,12 +29,13 @@ export const useUserStore = defineStore("user", {
     lastName: "",
     chats: [],
     allUsers: [],
+    howAboutThisPerson:[],
     userDataForChat: [],
     showFindFriends: false,
     currentChat: null,
     removeUsersFromFindFriends: [],
-    userID:"",
-    loginStatus:false
+    userID:"", // 使用者的fastChatID
+    loginStatus:false,
   }),
   actions: {
       // 檢查fastChat id 沒被註冊過
@@ -54,19 +55,28 @@ export const useUserStore = defineStore("user", {
           await this.saveUserDetails(res, router);
         }else{
         
-          await this.getAllUsers();
-          this.sub = res.data.sub;
-          this.email = res.data.email;
-          this.picture = res.data.picture;
-          this.firstName = res.data.given_name;
-          this.lastName = res.data.family_name;
-          this.loginStatus = true;
-          router.push("/");
+          // await this.getAllUsers();
+          await this.checkUserInfo(res.data.sub)
+     
         } 
 
       } catch (error) {
         console.log(error);
       }
+    },
+    async checkUserInfo (id){
+      const docRef = doc(db, "users", id);
+      const docSnap = await getDoc(docRef);
+      this.sub = docSnap._document.data.value.mapValue.fields.sub.stringValue;
+      this.email = docSnap._document.data.value.mapValue.fields.email.stringValue;
+      this.picture = docSnap._document.data.value.mapValue.fields.picture.stringValue;
+      this.firstName = docSnap._document.data.value.mapValue.fields.firstName.stringValue;
+      this.lastName = docSnap._document.data.value.mapValue.fields.lastName.stringValue;
+      this.allUsers = docSnap._document.data.value.mapValue.fields.allFriends.stringValue;
+      this.userID = docSnap._document.data.value.mapValue.fields.fastChatId.stringValue;
+      this.howAboutThisPerson = docSnap._document.data.value.mapValue.fields.howAboutThisPerson.stringValue;
+      this.loginStatus = true;
+      router.push("/");
     },
     async getAllUsers() {
       // 取得已經註冊的用戶
@@ -165,8 +175,9 @@ export const useUserStore = defineStore("user", {
           if (result.isConfirmed) {
             const fastChatId = result.value;
             isSetFastChatId = true;
+            this.userID =result.value;
             try {
-           
+              
   
               await setDoc(doc(db, "fastChatId", fastChatId), {
                 fastChatId,
@@ -195,9 +206,9 @@ export const useUserStore = defineStore("user", {
               picture: res.data.picture,
               firstName: res.data.given_name,
               lastName: res.data.family_name,
-              allFriends:'',
+              allFriends:[],
               howAboutThisPerson:[],
-              
+              fastChatId:this.userID
             });
          
             this.sub = res.data.sub;
