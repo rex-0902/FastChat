@@ -1,11 +1,10 @@
 // stores/counter.js
 import { defineStore } from "pinia";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import axios from "axios";
 import { v4 as uuid } from "uuid";
 import { db } from "../firebase-init";
 import { useRouter } from "vue-router";
-
 
 import {
   setDoc,
@@ -16,6 +15,7 @@ import {
   updateDoc,
   arrayUnion,
   onSnapshot,
+  deleteField,
   query,
 } from "firebase/firestore";
 axios.defaults.baseURL = "http://localhost:4001/";
@@ -29,114 +29,145 @@ export const useUserStore = defineStore("user", {
     lastName: "",
     chats: [],
     allUsers: [],
-    howAboutThisPerson:[],
     userDataForChat: [],
+    removeUsersFromFindFriends: [],
     showFindFriends: false,
     currentChat: null,
-    removeUsersFromFindFriends: [],
-    userID:"", // 使用者的fastChatID
-    loginStatus:false,
+    howAboutThisPerson: [],
+    userID: "", // 使用者的fastChatID
+    loginStatus: false,
   }),
   actions: {
-      // 檢查fastChat id 沒被註冊過
-      async checkfastChatId (data){
-        const allFastChatIds = await getDocs(collection(db, "fastChatId"));
-        return allFastChatIds.docs.some(doc => doc.id === data);
-         },
+    // 檢查fastChat id 沒被註冊過
+    async checkfastChatId(data) {
+      const allFastChatIds = await getDocs(collection(db, "fastChatId"));
+      return allFastChatIds.docs.some((doc) => doc.id === data);
+    },
     async getUserDetailsFromGoogle(data, router) {
       try {
         let res = await axios.post("api/google-login", {
           token: data.credential,
         });
-     
+
         let userExists = await this.checkIfUserExists(res.data.sub);
         // 檢查用戶是否註冊
-        if (!userExists){
+        if (!userExists) {
           await this.saveUserDetails(res, router);
-        }else{
-        
-          // await this.getAllUsers();
-          await this.checkUserInfo(res.data.sub)
-     
-        } 
-
+        } else {
+          
+          await this.getAllUsers();
+          await this.checkUserInfo(res.data.sub, router);
+        }
       } catch (error) {
         console.log(error);
       }
     },
-    async checkUserInfo (id){
+    async getAllUsers(){
+      this.showFindFriends = true
+    },
+    async checkUserInfo(id, router) {
+      console.log(id);
       const docRef = doc(db, "users", id);
       const docSnap = await getDoc(docRef);
+      console.log(
+        docSnap._document.data.value.mapValue.fields.howAboutThisPerson
+          .arrayValue.values
+      );
       this.sub = docSnap._document.data.value.mapValue.fields.sub.stringValue;
-      this.email = docSnap._document.data.value.mapValue.fields.email.stringValue;
-      this.picture = docSnap._document.data.value.mapValue.fields.picture.stringValue;
-      this.firstName = docSnap._document.data.value.mapValue.fields.firstName.stringValue;
-      this.lastName = docSnap._document.data.value.mapValue.fields.lastName.stringValue;
-      this.allUsers = docSnap._document.data.value.mapValue.fields.allFriends.stringValue;
-      this.userID = docSnap._document.data.value.mapValue.fields.fastChatId.stringValue;
-      this.howAboutThisPerson = docSnap._document.data.value.mapValue.fields.howAboutThisPerson.stringValue;
+      this.email =
+        docSnap._document.data.value.mapValue.fields.email.stringValue;
+      this.picture =
+        docSnap._document.data.value.mapValue.fields.picture.stringValue;
+      this.firstName =
+        docSnap._document.data.value.mapValue.fields.firstName.stringValue;
+      this.lastName =
+        docSnap._document.data.value.mapValue.fields.lastName.stringValue;
+
+        let allusersArray = [];
+        docSnap._document.data.value.mapValue.fields.allFriends.arrayValue.values.forEach((res)=>{
+            console.log(res);
+            let user = {
+              email:res.mapValue.fields.email.stringValue,
+              firstName:res.mapValue.fields.firstName.stringValue,
+              lastName:res.mapValue.fields.lastName.stringValue,
+              picture:res.mapValue.fields.picture.stringValue,
+              sub:res.mapValue.fields.sub.stringValue,
+            }
+            allusersArray.push(user)
+        })
+      this.allUsers = allusersArray;
+    
+
+      this.userID =
+        docSnap._document.data.value.mapValue.fields.fastChatId.stringValue;
+      this.howAboutThisPerson =
+        docSnap._document.data.value.mapValue.fields.howAboutThisPerson.arrayValue.values;
       this.loginStatus = true;
       router.push("/");
     },
-    async getAllUsers() {
-      // 取得已經註冊的用戶
-      const querySnapshot = await getDocs(collection(db, "users")); 
-      let results = [];
-      querySnapshot.forEach((doc) => {
-        results.push(doc.data());
-      });
-      console.log(results)
-      if (results.length) {
-        this.allUsers = results;
-      
-        this.showFindFriends = true
-      }
-    },
-    async searchFriend(addUserId){
-      const fastChatCollection = collection(db, 'fastChatId');
+    // async getAllUsers() {
+    //   // 取得已經註冊的用戶
+    //   const querySnapshot = await getDocs(collection(db, "users"));
+    //   let results = [];
+    //   querySnapshot.forEach((doc) => {
+    //     results.push(doc.data());
+    //   });
+    //   console.log(results);
+    //   if (results.length) {
+    //     this.allUsers = results;
+
+    //     this.showFindFriends = true;
+    //   }
+    // },
+    async searchFriend(addUserId) {
+      const fastChatCollection = collection(db, "fastChatId");
       const fastChatSnapshot = await getDocs(fastChatCollection);
       let matchingUsers = null;
-      console.log(addUserId)
+      console.log(addUserId);
       for (const fastChatDoc of fastChatSnapshot.docs) {
-   
         if (fastChatDoc.id === addUserId) {
-          console.log(fastChatDoc._document.data.value.mapValue.fields)
-          matchingUsers = fastChatDoc._document.data.value.mapValue.fields
+          console.log(fastChatDoc._document.data.value.mapValue.fields);
+          matchingUsers = fastChatDoc._document.data.value.mapValue.fields;
         }
       }
-      return matchingUsers
+      return matchingUsers;
       // console.log(q)
     },
-    async addFriend( addFriendSub){
+    async addFriend(addFriendSub) {
       const userDocRef = doc(db, "users", addFriendSub);
       const userDocSnapshot = await getDoc(userDocRef);
+      let msg = "";
       if (userDocSnapshot.exists()) {
-        let howAboutThisPerson = userDocSnapshot.data().howAboutThisPerson || [];
-    
+        let howAboutThisPerson =
+          userDocSnapshot.data().howAboutThisPerson || [];
+        console.log(addFriendSub);
         // 查找是否已有相同 fastChatId
-        const existingUserIndex = howAboutThisPerson.findIndex(user => user.fastChatId === this.userID);
-    
+        const existingUserIndex = howAboutThisPerson.findIndex(
+          (user) => user.sub === this.sub
+        );
+        console.log(existingUserIndex);
+        let userInfo = {
+          sub: this.sub,
+          email: this.email,
+          picture: this.picture,
+          firstName: this.firstName,
+          lastName: this.lastName,
+        };
         if (existingUserIndex !== -1) {
           // 覆蓋已有對象
-          let userInfo = {
-            sub: this.sub,
-            email: this.email,
-            picture: this.picture,
-            firstName:  this.firstName,
-            lastName: this.lastName,
-          }
-          howAboutThisPerson[existingUserIndex] = userInfo;
+          msg = "已送出好友!";
         } else {
           // 增加新對象
-          howAboutThisPerson.push(userInfo);
+          howAboutThisPerosn.push(userInfo);
+          msg = "好友邀請已送出";
         }
-    
+
         // 更新文檔
         await updateDoc(userDocRef, { howAboutThisPerson });
       } else {
-        console.log("Document does not exist!");
+        msg = "系統異常";
       }
-    
+      return msg;
     },
     //檢查用戶是否存在
     async checkIfUserExists(id) {
@@ -147,38 +178,37 @@ export const useUserStore = defineStore("user", {
     // 儲存用戶詳細信息
     async saveUserDetails(res, router) {
       // try {
-        Swal.fire({
-          title: "第一次登入請先設定fastChat id",
-          input: "text",
-          inputAttributes: {
-            autocapitalize: "off"
-          },
-          showCancelButton: true,
-          allowOutsideClick: false,
-          confirmButtonText: "確定",
-          CancelButtonText: "取消",
-          showLoaderOnConfirm: true,
-          inputValidator: async (value) => {
-            const regex = /^[a-zA-Z0-9]*$/;
-            if (!value) {
-              return '欄位不可空白';
-            } else if (!regex.test(value)) {
-              return 'fastChat id只能包含英文字母和數字！';
-            } else if (await this.checkfastChatId(value)) {
-              return 'fastChat id重複，請想新的';
-            }
-          },
-          allowOutsideClick: () => !Swal.isLoading()
-        }).then(async (result) => {
+      Swal.fire({
+        title: "第一次登入請先設定fastChat id",
+        input: "text",
+        inputAttributes: {
+          autocapitalize: "off",
+        },
+        showCancelButton: true,
+        allowOutsideClick: false,
+        confirmButtonText: "確定",
+        CancelButtonText: "取消",
+        showLoaderOnConfirm: true,
+        inputValidator: async (value) => {
+          const regex = /^[a-zA-Z0-9]*$/;
+          if (!value) {
+            return "欄位不可空白";
+          } else if (!regex.test(value)) {
+            return "fastChat id只能包含英文字母和數字！";
+          } else if (await this.checkfastChatId(value)) {
+            return "fastChat id重複，請想新的";
+          }
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      })
+        .then(async (result) => {
           // isSetFastChatId
           let isSetFastChatId = false;
           if (result.isConfirmed) {
             const fastChatId = result.value;
             isSetFastChatId = true;
-            this.userID =result.value;
+            this.userID = result.value;
             try {
-              
-  
               await setDoc(doc(db, "fastChatId", fastChatId), {
                 fastChatId,
                 sub: res.data.sub,
@@ -187,30 +217,27 @@ export const useUserStore = defineStore("user", {
                 firstName: res.data.given_name,
                 lastName: res.data.family_name,
               });
-  
-             
-            
             } catch (error) {
               console.log(error);
             }
-          }else{
+          } else {
             isSetFastChatId = false;
           }
-          return isSetFastChatId
-        }).then(async (isSetFastChatId)=>{
-          if(isSetFastChatId == true){
-
+          return isSetFastChatId;
+        })
+        .then(async (isSetFastChatId) => {
+          if (isSetFastChatId == true) {
             await setDoc(doc(db, "users", res.data.sub), {
               sub: res.data.sub,
               email: res.data.email,
               picture: res.data.picture,
               firstName: res.data.given_name,
               lastName: res.data.family_name,
-              allFriends:[],
-              howAboutThisPerson:[],
-              fastChatId:this.userID
+              allFriends: [],
+              howAboutThisPerson: [],
+              fastChatId: this.userID,
             });
-         
+
             this.sub = res.data.sub;
             this.email = res.data.email;
             this.picture = res.data.picture;
@@ -219,8 +246,7 @@ export const useUserStore = defineStore("user", {
             this.loginStatus = true;
             router.push("/");
           }
-        })
-     
+        });
     },
     async getChatById(id) {
       onSnapshot(doc(db, "chat", id), (doc) => {
@@ -323,10 +349,114 @@ export const useUserStore = defineStore("user", {
         { merge: true }
       );
     },
-   
-  
+    async becomeFriends(becomeFriendSub) {
+      // 確認的好朋友
+      const FriendDocRef = doc(db, "users", becomeFriendSub);
+      const FriendDocSnapshot = await getDoc(FriendDocRef);
+      let msg = "";
+      if (FriendDocSnapshot.exists()) {
+        let FriendAllUsers = FriendDocSnapshot.data().allUsers || [];
+        // 查找是否已有相同 fastChatId
+        const existingUserIndex = FriendAllUsers.findIndex(
+          (user) => user.sub === this.sub
+        );
+        let userInfo = {
+          sub: this.sub,
+          email: this.email,
+          picture: this.picture,
+          firstName: this.firstName,
+          lastName: this.lastName,
+        };
+        if (existingUserIndex !== -1) {
+          // 覆蓋已有對象
+          msg = "已成為好友!";
+        } else {
+          // 增加新對象
+          FriendAllUsers.push(userInfo);
+          msg = "已成為好友!";
+        }
+        // 更新朋友的好友欄位
+        await updateDoc(FriendDocRef, { allFriends: FriendAllUsers });
+
+        // 更新自己的好友欄位
+        const userDocRef = doc(db, "users", this.sub);
+        const userDocSnapshot = await getDoc(userDocRef);
+        if (userDocSnapshot.exists()) {
+          let userAllUsers = userDocSnapshot.data().allUsers || [];
+          let FriendInfo = {
+            sub: FriendDocSnapshot._document.data.value.mapValue.fields.sub
+              .stringValue,
+            email:
+              FriendDocSnapshot._document.data.value.mapValue.fields.email
+                .stringValue,
+            picture:
+              FriendDocSnapshot._document.data.value.mapValue.fields.picture
+                .stringValue,
+            firstName:
+              FriendDocSnapshot._document.data.value.mapValue.fields.firstName
+                .stringValue,
+            lastName:
+              FriendDocSnapshot._document.data.value.mapValue.fields.lastName
+                .stringValue,
+          };
+          if (existingUserIndex == -1) {
+            // 增加新對象
+            userAllUsers.push(FriendInfo);
+          }
+          await updateDoc(userDocRef, { allFriends: userAllUsers });
+          // 移除userDocRef 的howAboutThisPerson
+          getDoc(userDocRef)
+            .then((doc) => {
+              if (doc.exists) {
+                // Step 2: Get the current array
+                let howAboutThisPerson = doc.data().howAboutThisPerson;
+
+                // Step 3: Find the index of the object with sub == Friend.sub
+                const index = howAboutThisPerson.findIndex(
+                  (obj) =>
+                    obj.sub ===
+                    FriendDocSnapshot._document.data.value.mapValue.fields.sub
+                      .stringValue
+                );
+
+                // Step 4: Remove the object if found
+                if (index !== -1) {
+                  howAboutThisPerson.splice(index, 1);
+
+                  // Step 5: Update the document with the modified array
+                  updateDoc(userDocRef, { howAboutThisPerson: howAboutThisPerson })
+                
+                } else {
+                  console.log("No such sub value in the array!");
+                }
+              } else {
+                console.log("No such document!");
+              }
+            })
+            .catch((error) => {
+              console.log("Error getting document:", error);
+            });
+        }
+      } else {
+        msg = "系統異常";
+      }
+      return msg;
+    },
+    async removeHowAboutThisPerson(becomeFriendSub) {
+      // 佔存要刪除的物件
+      let removedObjects = [];
+      // 遍歷陣列，找到需要刪除的物件
+      for (let i = this.howAboutThisPerson.length - 1; i >= 0; i--) {
+        if (this.howAboutThisPerson[i].mapValue.fields.sub === becomeFriendSub) {
+          // 記錄被刪除的物件
+          removedObjects.push(array[i]);
+          // 刪除物件
+          array.splice(i, 1);
+        }
+      }
+  this.allUsers.push(removedObjects);
+    },
     logout() {
-  
       this.sub = "";
       this.email = "";
       this.picture = "";
@@ -337,10 +467,10 @@ export const useUserStore = defineStore("user", {
       this.userDataForChat = [];
       this.removeUsersFromFindFriends = [];
       this.showFindFriends = false;
-      this.currentChat = false;
-      this.loginStatus = false;
+      this.currentChat = null;
+      this.howAboutThisPerson = "";
       this.userID = "";
-      
+      this.loginStatus = false;
     },
   },
   persist: true,

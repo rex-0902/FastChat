@@ -1,6 +1,6 @@
 <template>
   <div id="FindFriends" class="pt-[100px] overflow-auto fixed h-[100vh] w-full">
-      <div v-for="user in allUsers" :key="user">
+      <div v-for="user in usersComputed" :key="user">
           <div v-if="hideMe(user)" @click="createNewChat(user)" class="flex w-full p-4 items-center cursor-pointer">
 
               <img class="rounded-full mr-4 w-12" :src="user.picture || ''">
@@ -11,7 +11,7 @@
                       <div class="text-[15px] text-gray-600"> {{  user.lastName  }}{{  user.firstName  }}</div>
                   </div>
                   <div class="flex items-center">
-                      <div class="text-[15px] text-gray-500">Hi, 我是{{  user.lastName  }} {{  user.firstName  }} !</div>
+                      <div class="text-[15px] text-gray-500">Hi, 我是{{  user.lastName  }}{{  user.firstName  }} !</div>
                   </div>
 
               </div>
@@ -34,7 +34,7 @@ const hideMe = (user) => {
   }
   return true
 }
-
+ 
 const createNewChat = (user) => {
   userDataForChat.value = []
   userDataForChat.value.push({

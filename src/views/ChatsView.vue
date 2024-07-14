@@ -20,7 +20,7 @@ import { onMounted } from 'vue';
 const userStore= useUserStore();
 const {chats ,userDataForChat , sub} = storeToRefs(userStore)
 
-onMounted(async () =>{
+onMounted(async () =>{ 
     if(userDataForChat.value.length){
         console.log(userDataForChat.value[0].id)
         await userStore.getChatById(userDataForChat.value[0].id)
