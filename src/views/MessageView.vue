@@ -4,9 +4,11 @@
       <div id="BG"></div>
       <div class="border-l border-green-500 w-full">
         <div
-          class="bg-[#F0F0F0] fixed z-10 min-w-[calc(100vw-420px)] flex justify-between items-center px-2 py-2"
+          :class="CollapseButton == true ? 
+          'bg-[#F0F0F0] fixed z-10 min-w-full flex justify-between items-center px-2 py-2':
+          'bg-[#F0F0F0] fixed z-10 w-full  flex justify-between items-center px-2 py-2  md:w-[calc(100vw-420px)]'"
         >
-          <div class="flex items-center">
+          <div class="flex items-cente ml-5 items-center">
             <img
               v-if="userDataForChat[0] && userDataForChat[0].picture"
               class="rounded-full mx-1 w-10"
@@ -27,7 +29,10 @@
 
       <div
         id="MessagesSection"
-        class="pt-20 pb-8 z-[-1] h-[calc(100vh-65px)] w-[calc(100vw-420px)] overflow-auto fixed touch-auto"
+        
+        :class="CollapseButton == true ? 
+        'pt-20 pb-8 z-[-1] h-[calc(100vh-65px)] w-full overflow-auto fixed touch-auto':
+        'pt-20 pb-8 z-[-1] h-[calc(100vh-65px)] w-[calc(100vw-420px)] overflow-auto fixed touch-auto'"
       >
         <div v-if="currentChat && currentChat.length" class="px-20 text-sm">
           <div v-for="msg in currentChat[0].messages" :key="msg">
@@ -39,7 +44,9 @@
 
             <div
               v-else
-              class="flex justify-end space-x-1 w-[calc(100%-50px)] float-right"
+                  :class="CollapseButton == true ? 
+                  'flex justify-end space-x-1 w-full float-right'
+                  :'flex justify-end space-x-1 w-[calc(100%-50px)] float-right'"
             >
               <div class="inline-block bg-green-200 p-2 rounded-md my-1">
                 {{ msg.message }}
@@ -49,7 +56,11 @@
         </div>
       </div>
 
-      <div class="w-[calc(100vw-420px)] p-2.5 z-10 bg-[#F0F0F0] fixed bottom-0">
+      <div 
+      :class="CollapseButton == true ? 
+                  'w-full p-2.5 z-10 bg-[#F0F0F0] fixed bottom-0'
+                  :'w-[calc(100vw-420px)] p-2.5 z-10 bg-[#F0F0F0] fixed bottom-0'"
+      >
         <div class="flex items-center justify-center">
           <EmoticonExcitedOutlineIcon
             :size="27"
@@ -90,6 +101,11 @@ import { useUserStore } from "../store/user-store";
 import { storeToRefs } from "pinia";
 const userStore = useUserStore();
 const { userDataForChat, currentChat, sub } = storeToRefs(userStore);
+import { defineProps } from 'vue';
+const props = defineProps({
+  CollapseButton: Boolean
+});
+
 
 let message = ref("");
 let disableBtn = ref(false);
@@ -145,7 +161,7 @@ const sendMessage = async () => {
 
 <style>
 #BG {
-  background: url("../assets/message-bg.png") no-repeat;
+  background: url("../assets/message-bg.png") repeat center;
   width: 100%;
   height: 100%;
   position: fixed;

@@ -1,9 +1,14 @@
 <template>
   <div class=" relative w-full h-full flex flex-row">
-    <div id="bar" class=" h-full flex flex-col w-[420px]">
+    <div 
+    id="bar" 
+    :class="
+    CollapseButton == true ?
+     'h-full flex flex-col w-[420px] bg-[#F0F0F0] absolute left-[-420px] top-0 z-50 transition-all'
+     :'h-full flex flex-col w-full bg-[#F0F0F0] absolute left-0 top-0 z-50 transition-all md:w-[420px] '">
    
-      <div class="w-full  h-full">
-        <div id="Header" >
+      <div class="  h-full  w-full">
+        <div id="Header " >
           <div
             class="bg-[#F0F0F0] w-full flex justify-between items-center px-3 py-2"
           >
@@ -16,27 +21,34 @@
               {{ userStore.lastName }}{{ userStore.firstName }}
             </div>
             <div class="flex items-center justify-center">
-              <AccountGroupIcon fillColor="#515151" class="mr-6 cursor-pointer" />
+              <AccountGroupIcon @click="showFindFriends = !showFindFriends" fillColor="#515151" class="mr-6 cursor-pointer" />
               <div class="relative">
                 <DotsVerticalIcon @click="isShowSettings = !isShowSettings" fillColor="#515151" class="cursor-pointer"  />
-                <div v-if="isShowSettings == true"  class="flex-col absolute bg-white px-4 border-l-gray-800">
+                <div v-if="isShowSettings == true"  class="flex-col absolute bg-white px-4 border-l-gray-800 z-50">
                   <button @click="settings" class="break-keep p-4">設定</button>
                   <button @click="logout" class="break-keep p-4">登出</button>
                 </div>
               </div>
+              <ArrowLeft fillColor="#515151"
+               @click="CollapseButton = !CollapseButton" 
+               :class="CollapseButton == true ?
+               'ml-4 cursor-pointer absolute left-[405px]' : 
+               'ml-4 cursor-pointer'"
+               
+               />
             </div>
           </div>
     
-          <div id="Search" class="bg-white w-full px-2 border-b shadow-sm">
+          <div id="Search" class="bg-white w-full px-2 border-b shadow-sm flex items-center">
             <div
-              class="px-1 m-2 bg-[#F0F0F0] flex items-center justify-center rounded-md"
+              class="px-1 m-2 bg-[#F0F0F0] flex items-center justify-center rounded-md w-full"
             >
               <MagnifyIcon fillColor="#515151" :size="18" class="ml-2" />
               <input
-                class="ml-5 apperance-none w-full bg-[#F0F0F0] py-1.5 px-2.5 text-gray-700 leading-tight focus:outline-none focus:shadow-outline placeholder:text-sm placeholder:text-gray-500"
+                class="ml-5 apperance-none w-full block bg-[#F0F0F0] py-1.5 px-2.5 text-gray-700 leading-tight focus:outline-none focus:shadow-outline placeholder:text-sm placeholder:text-gray-500"
                 autocomplete="off"
                 type="text"
-                placeholder="Start a new chat"
+                placeholder="搜尋"
               />
             </div>
           </div>
@@ -46,22 +58,25 @@
           <FindFriendsView class="pt-28" />
         </div>
         <div v-else >
-          <ChatsView class="mt-[100px]" />
+          <ChatsView  />
         </div>
       </div>
          
       
     </div>
 
-    <div v-if="userDataForChat.length">
-      <MessageView />
+    <div v-if="userDataForChat.length" 
+    :class="CollapseButton == true ?
+    'w-full ml-[0]': 
+    'w-full ml-0 md:w-[calc(100%-420px)] md:ml-[420px]'" >
+      <MessageView :CollapseButton="CollapseButton" />
     </div>
       <div
       v-else 
         class=" fixed w-[calc(100vw-420px)] h-[100vh] bg-gray-100 text-center"
       >
         <div class="grid h-screen place-items-center">
-          <div>
+          <div>w-full ml-0 md:w-[calc(100%-420px)] md:ml-[420px]
             <div class="w-full flex items-center justify-center">
               <img width="375" src="../assets/notChat.png" alt="" />
             </div>
@@ -84,6 +99,7 @@ import FindFriendsView from "./FindFriendsView.vue";
 import MessageView from "./MessageView.vue";
 import AccountGroupIcon from "vue-material-design-icons/AccountGroup.vue";
 import DotsVerticalIcon from "vue-material-design-icons/DotsVertical.vue";
+import ArrowLeft from "vue-material-design-icons/ArrowLeft.vue";
 import MagnifyIcon from "vue-material-design-icons/Magnify.vue";
 import { onMounted , ref } from "vue";
 import { useUserStore } from "../store/user-store";
@@ -116,6 +132,10 @@ let isShowSettings = ref(false);
 let settings = () =>{
   router.push("/settings");
 }
+
+let CollapseButton = ref(true)
+
+
 
 onMounted(async () => {
   try {
