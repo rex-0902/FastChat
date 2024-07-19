@@ -21,7 +21,8 @@
               {{ userStore.lastName }}{{ userStore.firstName }}
             </div>
             <div class="flex items-center justify-center">
-              <AccountGroupIcon @click="showFindFriends = !showFindFriends" fillColor="#515151" class="mr-6 cursor-pointer" />
+              <AccountGroupIcon @click="showFindFriends = true" fillColor="#515151" class="mr-6 cursor-pointer" />
+              <Message @click="showFindFriends = false" fillColor="#515151" class="mr-6 cursor-pointer" />
               <div class="relative">
                 <DotsVerticalIcon @click="isShowSettings = !isShowSettings" fillColor="#515151" class="cursor-pointer"  />
                 <div v-if="isShowSettings == true"  class="flex-col absolute bg-white px-4 border-l-gray-800 z-50">
@@ -29,6 +30,7 @@
                   <button @click="logout" class="break-keep p-4">登出</button>
                 </div>
               </div>
+            
               <ArrowLeft fillColor="#515151"
                @click="CollapseButton = !CollapseButton" 
                :class="CollapseButton == true ?
@@ -55,10 +57,10 @@
          
         </div>
         <div v-if="showFindFriends">
-          <FindFriendsView class="pt-28" />
+          <FindFriendsView  />
         </div>
         <div v-else >
-          <ChatsView  />
+          <ChatsView :changeCollapseButton='changeCollapseButton' />
         </div>
       </div>
          
@@ -73,10 +75,10 @@
     </div>
       <div
       v-else 
-        class=" fixed w-[calc(100vw-420px)] h-[100vh] bg-gray-100 text-center"
+        class=" fixed  h-[100vh] bg-gray-100 text-center w-full ml-0 md:w-full"
       >
-        <div class="grid h-screen place-items-center">
-          <div>w-full ml-0 md:w-[calc(100%-420px)] md:ml-[420px]
+        <div class="grid h-screen place-items-center ">
+          <div>
             <div class="w-full flex items-center justify-center">
               <img width="375" src="../assets/notChat.png" alt="" />
             </div>
@@ -101,6 +103,7 @@ import AccountGroupIcon from "vue-material-design-icons/AccountGroup.vue";
 import DotsVerticalIcon from "vue-material-design-icons/DotsVertical.vue";
 import ArrowLeft from "vue-material-design-icons/ArrowLeft.vue";
 import MagnifyIcon from "vue-material-design-icons/Magnify.vue";
+import Message from "vue-material-design-icons/Message.vue";
 import { onMounted , ref } from "vue";
 import { useUserStore } from "../store/user-store";
 import { storeToRefs } from "pinia";
@@ -133,8 +136,12 @@ let settings = () =>{
   router.push("/settings");
 }
 
+// 是否顯示收藏bar
 let CollapseButton = ref(true)
-
+let changeCollapseButton = (cho) =>{
+  console.log(cho)
+  CollapseButton.value = cho
+}
 
 
 onMounted(async () => {

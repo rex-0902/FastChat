@@ -1,7 +1,7 @@
 <template>
-  <div id="FindFriends" class="pt-[100px] overflow-auto fixed h-[100vh] w-full">
+  <div id="FindFriends" class="z-0 overflow-auto fixed h-[calc(100vh-100px)] w-[420px]">
       <div v-for="user in usersComputed" :key="user">
-          <div v-if="hideMe(user)" @click="createNewChat(user)" class="flex w-full p-4 items-center cursor-pointer">
+          <div @click="createNewChat(user)" class="flex w-full p-4 items-center cursor-pointer">
 
               <img class="rounded-full mr-4 w-12" :src="user.picture || ''">
 
@@ -25,7 +25,7 @@ import { computed, ref } from 'vue'
 import { useUserStore } from "@/store/user-store";
 import { storeToRefs } from "pinia";
 const userStore = useUserStore()
-const { sub, userDataForChat, allUsers, removeUsersFromFindFriends } = storeToRefs(userStore)
+const {  showFindFriends, sub, userDataForChat, allUsers, removeUsersFromFindFriends } = storeToRefs(userStore)
 let users = ref([])
 
 const hideMe = (user) => {
@@ -36,6 +36,7 @@ const hideMe = (user) => {
 }
  
 const createNewChat = (user) => {
+    
   userDataForChat.value = []
   userDataForChat.value.push({
       id: '',
@@ -49,10 +50,10 @@ const createNewChat = (user) => {
 
 const usersComputed = computed(() => {
   allUsers.value.forEach(user => users.value.push(user))
-  removeUsersFromFindFriends.value.forEach(remove => {
-      let index = users.value.findIndex(user => user.sub === remove)
-      users.value.splice(index, 1)
-  })
+//   removeUsersFromFindFriends.value.forEach(remove => {
+//       let index = users.value.findIndex(user => user.sub === remove)
+//       users.value.splice(index, 1)
+//   })
   return users.value
 })
 </script>

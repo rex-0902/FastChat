@@ -20,6 +20,12 @@ import { onMounted } from 'vue';
 const userStore= useUserStore();
 const {chats ,userDataForChat , sub} = storeToRefs(userStore)
 
+import {defineProps} from 'vue';
+const props = defineProps({
+    changeCollapseButton: Function
+})
+
+
 onMounted(async () =>{ 
     if(userDataForChat.value.length){
         console.log(userDataForChat.value[0].id)
@@ -28,6 +34,7 @@ onMounted(async () =>{
 })
 
 const openChat = async (chat) => {
+    props.changeCollapseButton(true)
     userDataForChat.value = []
     userDataForChat.value.push({
         id: chat.id,

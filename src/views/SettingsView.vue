@@ -200,11 +200,10 @@
       </div>
       <div v-if="SettingButtonState == false" class="mt-12 flex justify-center">
    
-        <button
-          class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-        >
-        設定完成
-        </button>
+       
+        <router-link to='/' class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
+          設定完成
+        </router-link>
       </div>
     </div>
   </div>
@@ -212,6 +211,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { RouterLink } from "vue-router";
 import { useUserStore } from "../store/user-store";
 import { storeToRefs } from "pinia";
 import Swal from "sweetalert2";
@@ -264,14 +264,14 @@ let searchFriend = () => {
     isShowHiddenUser.value = true;
   } else {
     userStore.searchFriend(searchUserKey.value).then((res) => {
-      console.log(res);
+   
       if (res !== null) {
         searchUser.value.fastChatId = res.fastChatId.stringValue;
         searchUser.value.firstName = res.firstName.stringValue;
         searchUser.value.lastName = res.lastName.stringValue;
         searchUser.value.picture = res.picture.stringValue;
         searchUser.value.sub = res.sub.stringValue;
-        console.log(searchUser.value);
+
         addFriendState.value = "canJoin";
       }
       isShowHiddenUser.value = true;
