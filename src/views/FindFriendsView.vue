@@ -1,5 +1,5 @@
 <template>
-  <div id="FindFriends" class="z-0 overflow-auto fixed h-[calc(100vh-100px)] w-[420px]">
+  <div id="FindFriends" class="z-0 overflow-auto  h-[calc(100%-130px)] w-[420px]">
       <div v-for="user in usersComputed" :key="user">
           <div @click="createNewChat(user)" class="flex w-full p-4 items-center cursor-pointer">
 
@@ -8,10 +8,10 @@
               <div class="w-full">
 
                   <div class="flex justify-between items-center">
-                      <div class="text-[15px] text-gray-600"> {{  user.lastName  }}{{  user.firstName  }}</div>
+                      <div class="text-[15px] text-slate-300"> {{  user.lastName  }}{{  user.firstName  }}</div>
                   </div>
                   <div class="flex items-center">
-                      <div class="text-[15px] text-gray-500">Hi, 我是{{  user.lastName  }}{{  user.firstName  }} !</div>
+                      <div class="text-[15px] text-slate-400">Hi, 我是{{  user.lastName  }}{{  user.firstName  }} !</div>
                   </div>
 
               </div>
@@ -49,12 +49,15 @@ const createNewChat = (user) => {
 }
 
 const usersComputed = computed(() => {
-  allUsers.value.forEach(user => users.value.push(user))
-//   removeUsersFromFindFriends.value.forEach(remove => {
-//       let index = users.value.findIndex(user => user.sub === remove)
-//       users.value.splice(index, 1)
-//   })
-  return users.value
+  if(allUsers.value.length > 0){
+
+    allUsers.value.forEach(user => users.value.push(user))
+  //   removeUsersFromFindFriends.value.forEach(remove => {
+  //       let index = users.value.findIndex(user => user.sub === remove)
+  //       users.value.splice(index, 1)
+  //   })
+    return users.value
+  }
 })
 </script>
 

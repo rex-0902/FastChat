@@ -33,7 +33,7 @@ const router = useRouter();
 const userStore = useUserStore();
 
 const callback = async (response) => {
-  console.log(router)
+
   await userStore.getUserDetailsFromGoogle(response,router)
 };
 

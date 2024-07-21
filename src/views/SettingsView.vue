@@ -48,7 +48,7 @@
             搜尋
           </button>
           <button
-            @click="(isAddFriendVisible = false), cancelDelivery"
+            @click=" cancelDelivery"
             class="ml-2 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
           >
             取消
@@ -153,12 +153,14 @@
           </button>
         </div>
       </div>
+    
       <div
         v-if="youMayKnow"
         id="youMayKnow"
         class="md:ml-4 mt-4 md:mt-0 flex-grow"
       >
-        <h3>你可能認識的人?</h3>
+        <h3 v-if="howAboutThisPerson.length > 0">你可能認識的人?</h3>
+        <h3 v-else class="text-center">現在沒有需要確認的朋友!</h3>
         <div
           v-for="Person in howAboutThisPerson"
           :key="Person.mapValue.fields.firstName.stringValue"
@@ -184,7 +186,8 @@
             </button>
             <button
               class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
-            >
+              @click="unConfirm(Person.mapValue.fields.sub.stringValue)"
+              >
                移除
             </button>
           </div>
@@ -198,6 +201,7 @@
           </button>
         </div>
       </div>
+
       <div v-if="SettingButtonState == false" class="mt-12 flex justify-center">
    
        
@@ -218,7 +222,7 @@ import Swal from "sweetalert2";
 import axios from "axios";
 
 const userStore = useUserStore();
-const { picture, lastName, firstName, userID, sub, howAboutThisPerson } =
+const { picture, lastName, firstName,getHowAboutThisPerson, userID, sub, howAboutThisPerson } =
   storeToRefs(userStore);
 //設定按鈕
 let SettingButtonState = ref(false);
@@ -280,6 +284,8 @@ let searchFriend = () => {
 };
 //取消寄送好友邀請
 let cancelDelivery = () => {
+  SettingButtonState.value = false;
+  youMayKnow.value = false;
   searchUserKey.value = "";
   addFriendState.value = "";
   SettingButtonState.value = false;
@@ -311,6 +317,7 @@ let youMayKnow = ref(false);
 let showYouMayKnow = () => {
   SettingButtonState.value = true;
   youMayKnow.value = true;
+  userStore.getHowAboutThisPerson();
 };
 
 // 回上一步
@@ -341,9 +348,15 @@ let confirm = (becomeFriendSub) =>{
       title: `${res}`,
       showConfirmButton: false,
       timer: 1500,
-    }).then(() => userStore.removeHowAboutThisPerson(becomeFriendSub));
+    }).then(() => userStore.removeHowAboutThisPerson(becomeFriendSub,'confirm'));
   });
 }
+// 取消確認好友
+let unConfirm = (becomeFriendSub) =>{
+  userStore.removeHowAboutThisPerson(becomeFriendSub,'unConfirm')
+} 
+
+
 
 </script>
 

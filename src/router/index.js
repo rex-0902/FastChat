@@ -24,14 +24,13 @@ const router = createRouter({
 })
 router.beforeEach((to, from, next) => {
     const userStore = useUserStore();
-    console.log(userStore.loginStatus)
+
     if (userStore.loginStatus === false && to.path !== '/login') {
       next('/login');
     } else {
       next();
     }
-    console.log(from)
-    console.log(to)
+   
     if (userStore.loginStatus === true && from.path == '/login') {
         next('/');
       }

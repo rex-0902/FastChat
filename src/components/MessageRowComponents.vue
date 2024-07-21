@@ -1,6 +1,6 @@
 <template>
   <div :class="isActive ? 'bg-gray-200' : ''">
-    <div class="flex w-full px-4 py-3 items-center cursor-pointer">
+    <div class="flex w-full px-4 py-3 items-center cursor-pointer bg-[#151515]">
       <img class="rounded-full mr-4 w-12" :src="chat.user.picture || ''">
 
       <div class="w-full">
@@ -24,7 +24,7 @@
 
     </div>
 
-    <div class="border-b w-[calc(100%-80px)] float-right"></div>
+    <div class=" w-[calc(100%-80px)] float-right"></div>
 
   </div>
 </template>

@@ -1,7 +1,7 @@
 <template>
     <div 
         id="Messages" 
-        class="pt-1 z-0 overflow-auto fixed h-[calc(100vh-100px)] w-[420px]"
+        class="pt-1 z-0 overflow-auto  h-[calc(100%-105px)] w-full"
     >
         <div v-for="chat in chats" :key="chat">
         <div @click="openChat(chat)">
@@ -28,7 +28,7 @@ const props = defineProps({
 
 onMounted(async () =>{ 
     if(userDataForChat.value.length){
-        console.log(userDataForChat.value[0].id)
+  
         await userStore.getChatById(userDataForChat.value[0].id)
     }    
 })

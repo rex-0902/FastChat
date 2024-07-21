@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.post("/api/google-login", async (req, res) => {
-  console.log(req);
+
   const ticket = await client.verifyIdToken({
     idToken: req.body.token,
   });

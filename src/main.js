@@ -5,7 +5,7 @@ import router from '@/router'
 import vue3GoogleLogin from 'vue3-google-login'
 import {createPinia} from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-
+import 'glightbox/dist/css/glightbox.css';
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
