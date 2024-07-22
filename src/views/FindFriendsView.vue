@@ -25,7 +25,7 @@ import { computed, ref } from 'vue'
 import { useUserStore } from "@/store/user-store";
 import { storeToRefs } from "pinia";
 const userStore = useUserStore()
-const {  showFindFriends, sub, userDataForChat, allUsers, removeUsersFromFindFriends } = storeToRefs(userStore)
+const {  showFindFriends, sub, userDataForChat, chats,allUsers, removeUsersFromFindFriends } = storeToRefs(userStore)
 let users = ref([])
 
 const hideMe = (user) => {
@@ -34,19 +34,43 @@ const hideMe = (user) => {
   }
   return true
 }
- 
+// 確認
+const checkIsThereAConversationId = (sub1,sub2) =>{
+
+let result = chats.value
+result.filter(item => item.sub1 === sub1 && item.sub2 === sub2)
+console.log(result[0])
+
+return result[0].id
+
+}
 const createNewChat = (user) => {
     
   userDataForChat.value = []
-  userDataForChat.value.push({
-      id: '',
-      sub1: sub.value,
-      sub2: user.sub,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      picture: user.picture,
-  })
+  console.log(checkIsThereAConversationId(sub.value,user.sub))
+  if(checkIsThereAConversationId(sub.value,user.sub).length !== 0 ){
+    userDataForChat.value.push({
+        id: checkIsThereAConversationId(sub.value,user.sub),
+        sub1: sub.value,
+        sub2: user.sub,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        picture: user.picture,
+    })
+  }else{
+
+    userDataForChat.value.push({
+        id: '',
+        sub1: sub.value,
+        sub2: user.sub,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        picture: user.picture,
+    })
+  }
 }
+
+
 
 const usersComputed = computed(() => {
   if(allUsers.value.length > 0){

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen bg-gray-200 flex flex-col md:flex-row items-center justify-center py-12"
+    class="min-h-screen bg-[#03061b] flex flex-col md:flex-row items-center justify-center py-12"
   >
     <div class="p-4 max-w-md w-full bg-white shadow-md rounded-md">
       <div class="text-center mb-4">
@@ -159,7 +159,7 @@
         id="youMayKnow"
         class="md:ml-4 mt-4 md:mt-0 flex-grow"
       >
-        <h3 v-if="howAboutThisPerson.length > 0">你可能認識的人?</h3>
+        <h3 v-if="howAboutThisPerson?.length > 0">你可能認識的人?</h3>
         <h3 v-else class="text-center">現在沒有需要確認的朋友!</h3>
         <div
           v-for="Person in howAboutThisPerson"

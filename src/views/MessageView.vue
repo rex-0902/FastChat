@@ -27,8 +27,8 @@
     id="MessagesSection"
     :class="
       CollapseButton == true
-        ? '  w-full overflow-auto  touch-auto h-[100%-151px]'
-        : '  w-[calc(100vw-420px)] overflow-auto  touch-auto h-[100%-151px]'
+        ? '  w-full overflow-auto  touch-auto h-[calc(100%-151px)] '
+        : '  w-[calc(100vw-420px)] overflow-auto  touch-auto h-[calc(100%-151px)] '
     "
   >
     <div v-if="currentChat && currentChat.length" class="px-20 text-sm">

@@ -18,6 +18,10 @@ import {
   deleteField,
   query,
 } from "firebase/firestore";
+
+
+
+
 axios.defaults.baseURL = "http://localhost:4001/";
 
 export const useUserStore = defineStore("user", {
@@ -80,7 +84,8 @@ export const useUserStore = defineStore("user", {
         docSnap._document.data.value.mapValue.fields.lastName.stringValue;
 
       let allusersArray = [];
-      if(docSnap._document.data.value.mapValue.fields?.allFriends > 0){
+      console.log(docSnap._document.data.value.mapValue.fields)
+      if(docSnap._document.data.value.mapValue.fields?.allFriends?.arrayValue?.values.length > 0){
         docSnap._document.data.value.mapValue.fields.allFriends.arrayValue.values.forEach(
           (res) => {
       
@@ -450,15 +455,18 @@ export const useUserStore = defineStore("user", {
           // 刪除物件
           this.howAboutThisPerson.splice(i, 1);
           // 20240721
-          const dbRef = ref(db, "/users/" + this.sub);
-
-          remove(dbRef).then(() => console.log("Deleted"))
+       
+          const dbDocRef = doc(db, "users", this.sub);
+          await updateDoc(dbDocRef, {
+            howAboutThisPerson: this.howAboutThisPerson
+          });
+          // remove(dbRef).then(() => console.log("Deleted"))
        
         }
       }
       if(state == 'confirm'){
-
-        this.allUsers.push(removedObjects);
+        console.log(removedObjects)
+        this.allUsers.value.push(removedObjects[0]);
       }
       
     },
@@ -481,7 +489,7 @@ export const useUserStore = defineStore("user", {
       this.removeUsersFromFindFriends = [];
       this.showFindFriends = false;
       this.currentChat = null;
-      this.howAboutThisPerson = "";
+      this.howAboutThisPerson = [];
       this.userID = "";
       this.loginStatus = false;
     },
