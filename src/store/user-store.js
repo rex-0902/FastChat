@@ -35,7 +35,7 @@ export const useUserStore = defineStore("user", {
     allUsers: [],
     userDataForChat: [],
     removeUsersFromFindFriends: [],
-    showFindFriends: false,
+    showFindFriends: true,
     currentChat: null,
     howAboutThisPerson: [],
     userID: "", // 使用者的fastChatID
@@ -58,14 +58,39 @@ export const useUserStore = defineStore("user", {
         if (!userExists) {
           await this.saveUserDetails(res, router);
         } else {
-          await this.getAllUsers();
+          // await this.getAllUsers();
           await this.checkUserInfo(res.data.sub, router);
         }
       } catch (error) {
         console.log(error);
       }
     },
-    async getAllUsers() {
+    async getAllUsers(userSub) {
+  
+      let allusersArray = [];
+      
+      const docRef = doc(db, "users", userSub);
+      const docSnap = await getDoc(docRef);
+      if(docSnap._document.data.value.mapValue.fields?.allFriends?.arrayValue?.values?.length > 0){
+        docSnap._document.data.value.mapValue.fields.allFriends.arrayValue.values.forEach(
+          (res) => {
+            console.log(res)
+            let user = {
+              email: res.mapValue.fields.email.stringValue,
+              firstName: res.mapValue.fields.firstName.stringValue,
+              lastName: res.mapValue.fields.lastName.stringValue,
+              picture: res.mapValue.fields.picture.stringValue,
+              sub: res.mapValue.fields.sub.stringValue,
+              fastChatId: res.mapValue.fields.fastChatId.stringValue,
+            };
+            allusersArray.push(user);
+          }
+        );
+
+        this.allUsers = allusersArray;
+      }else{
+        this.allUsers = '';
+      }
       this.showFindFriends = true;
     },
     async checkUserInfo(id, router) {
@@ -84,17 +109,18 @@ export const useUserStore = defineStore("user", {
         docSnap._document.data.value.mapValue.fields.lastName.stringValue;
 
       let allusersArray = [];
-      console.log(docSnap._document.data.value.mapValue.fields)
-      if(docSnap._document.data.value.mapValue.fields?.allFriends?.arrayValue?.values.length > 0){
+      
+      if(docSnap._document.data.value.mapValue.fields?.allFriends?.arrayValue?.values?.length > 0){
         docSnap._document.data.value.mapValue.fields.allFriends.arrayValue.values.forEach(
           (res) => {
-      
+            console.log(res)
             let user = {
               email: res.mapValue.fields.email.stringValue,
               firstName: res.mapValue.fields.firstName.stringValue,
               lastName: res.mapValue.fields.lastName.stringValue,
               picture: res.mapValue.fields.picture.stringValue,
               sub: res.mapValue.fields.sub.stringValue,
+              fastChatId: res.mapValue.fields.fastChatId.stringValue,
             };
             allusersArray.push(user);
           }
@@ -134,7 +160,7 @@ export const useUserStore = defineStore("user", {
       if (userDocSnapshot.exists()) {
         let howAboutThisPerson =
           userDocSnapshot.data().howAboutThisPerson || [];
-      
+        console.log(howAboutThisPerson)
         // 查找是否已有相同 fastChatId
         const existingUserIndex = howAboutThisPerson.findIndex(
           (user) => user.sub === this.sub
@@ -155,6 +181,7 @@ export const useUserStore = defineStore("user", {
           howAboutThisPerson.push(userInfo);
           msg = "好友邀請已送出";
         }
+       
 
         // 更新文檔
         await updateDoc(userDocRef, { howAboutThisPerson });
@@ -460,14 +487,11 @@ export const useUserStore = defineStore("user", {
           await updateDoc(dbDocRef, {
             howAboutThisPerson: this.howAboutThisPerson
           });
-          // remove(dbRef).then(() => console.log("Deleted"))
+      
        
         }
       }
-      if(state == 'confirm'){
-        console.log(removedObjects)
-        this.allUsers.value.push(removedObjects[0]);
-      }
+     
       
     },
     async getHowAboutThisPerson() {

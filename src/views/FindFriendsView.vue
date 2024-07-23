@@ -24,8 +24,16 @@
 import { computed, ref } from 'vue'
 import { useUserStore } from "@/store/user-store";
 import { storeToRefs } from "pinia";
+
+
 const userStore = useUserStore()
-const {  showFindFriends, sub, userDataForChat, chats,allUsers, removeUsersFromFindFriends } = storeToRefs(userStore)
+const {  showFindFriends,
+   sub, 
+   userDataForChat,
+    chats,
+    allUsers,
+     removeUsersFromFindFriends,
+     } = storeToRefs(userStore)
 let users = ref([])
 
 const hideMe = (user) => {
@@ -40,23 +48,46 @@ const checkIsThereAConversationId = (sub1,sub2) =>{
 let result = chats.value
 result.filter(item => item.sub1 === sub1 && item.sub2 === sub2)
 console.log(result[0])
+let finResult = 0;
 
-return result[0].id
+if(result[0] !== undefined){
+  finResult = result[0]
+}
+return finResult
 
 }
-const createNewChat = (user) => {
+const createNewChat = async (user) => {
     
   userDataForChat.value = []
-  console.log(checkIsThereAConversationId(sub.value,user.sub))
-  if(checkIsThereAConversationId(sub.value,user.sub).length !== 0 ){
+  console.log(checkIsThereAConversationId(sub.value,user.sub).id)
+  if(checkIsThereAConversationId(sub.value,user.sub) !== 0 ){
     userDataForChat.value.push({
-        id: checkIsThereAConversationId(sub.value,user.sub),
+        id: checkIsThereAConversationId(sub.value,user.sub).id,
         sub1: sub.value,
         sub2: user.sub,
         firstName: user.firstName,
         lastName: user.lastName,
         picture: user.picture,
     })
+    try {
+        await userStore.getChatById(checkIsThereAConversationId(sub.value,user.sub).id)
+        let data = {
+            id: checkIsThereAConversationId(sub.value,user.sub).id,
+            key1: 'sub1HasViewed', val1: false, 
+            key2: 'sub2HasViewed', val2: false, 
+        }
+        if (checkIsThereAConversationId(sub.value,user.sub).sub1 === sub.value) {
+            data.val1 = true
+            data.val2 = true
+        } else if (checkIsThereAConversationId(sub.value,user.sub).sub2 === sub.value) {
+            data.val1 = true
+            data.val2 = true
+        }
+        await userStore.hasReadMessage(data)
+    } catch (error) {
+        console.log(error)
+    }
+    showFindFriends.value = false
   }else{
 
     userDataForChat.value.push({
@@ -74,8 +105,8 @@ const createNewChat = (user) => {
 
 const usersComputed = computed(() => {
   if(allUsers.value.length > 0){
-
-    allUsers.value.forEach(user => users.value.push(user))
+    users.value = allUsers.value
+    // allUsers.value.forEach(user => users.value.push(user))
   //   removeUsersFromFindFriends.value.forEach(remove => {
   //       let index = users.value.findIndex(user => user.sub === remove)
   //       users.value.splice(index, 1)

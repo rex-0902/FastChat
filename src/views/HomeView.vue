@@ -57,7 +57,7 @@
          
         </div>
         <template v-if="showFindFriends">
-          <FindFriendsView  />
+          <FindFriendsView   />
         </template>
         <div v-else >
           <ChatsView :changeCollapseButton='changeCollapseButton' />
@@ -112,7 +112,7 @@ import Swal from "sweetalert2";
 
 const userStore = useUserStore();
 const router = useRouter();
-const { showFindFriends, userDataForChat } = storeToRefs(userStore);
+const { showFindFriends, userDataForChat ,sub} = storeToRefs(userStore);
 
 const logout = () => {
   Swal.fire({
@@ -146,7 +146,7 @@ let changeCollapseButton = (cho) =>{
 
 onMounted(async () => {
   try {
-    userStore.getAllUsers();
+    userStore.getAllUsers(sub.value);
     await userStore.getAllChatsByUser();
   } catch (error) {
     console.log(error);

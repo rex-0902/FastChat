@@ -48,7 +48,7 @@
             搜尋
           </button>
           <button
-            @click=" cancelDelivery"
+            @click="cancelDelivery"
             class="ml-2 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
           >
             取消
@@ -153,7 +153,7 @@
           </button>
         </div>
       </div>
-    
+
       <div
         v-if="youMayKnow"
         id="youMayKnow"
@@ -179,7 +179,7 @@
           </div>
           <div class="flex flex-row gap-4">
             <button
-               @click="confirm(Person.mapValue.fields.sub.stringValue)"
+              @click="confirm(Person.mapValue.fields.sub.stringValue)"
               class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
             >
               確認
@@ -187,8 +187,8 @@
             <button
               class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
               @click="unConfirm(Person.mapValue.fields.sub.stringValue)"
-              >
-               移除
+            >
+              移除
             </button>
           </div>
         </div>
@@ -203,9 +203,10 @@
       </div>
 
       <div v-if="SettingButtonState == false" class="mt-12 flex justify-center">
-   
-       
-        <router-link to='/' class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
+        <router-link
+          to="/"
+          class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+        >
           設定完成
         </router-link>
       </div>
@@ -222,8 +223,16 @@ import Swal from "sweetalert2";
 import axios from "axios";
 
 const userStore = useUserStore();
-const { picture, lastName, firstName,getHowAboutThisPerson, userID, sub, howAboutThisPerson } =
-  storeToRefs(userStore);
+const {
+  picture,
+  lastName,
+  firstName,
+  getHowAboutThisPerson,
+  userID,
+  sub,
+  howAboutThisPerson,
+  allUsers,
+} = storeToRefs(userStore);
 //設定按鈕
 let SettingButtonState = ref(false);
 
@@ -266,9 +275,21 @@ let searchFriend = () => {
     searchUser.value.sub = sub.value;
     addFriendState.value = "same";
     isShowHiddenUser.value = true;
-  } else {
+  } else if(checkBefriend(searchUserKey.value)){
+
+    allUsers.value.forEach((res)=>{
+      if(res.fastChatId == searchUserKey.value){
+        searchUser.value.fastChatId = res.userID;
+        searchUser.value.firstName = res.firstName;
+        searchUser.value.lastName = res.lastName;
+        searchUser.value.picture = res.picture;
+        searchUser.value.sub = res.sub;
+        addFriendState.value = "alreadyAfriend";
+        isShowHiddenUser.value = true;
+      }
+    })
+  }else{
     userStore.searchFriend(searchUserKey.value).then((res) => {
-   
       if (res !== null) {
         searchUser.value.fastChatId = res.fastChatId.stringValue;
         searchUser.value.firstName = res.firstName.stringValue;
@@ -280,6 +301,7 @@ let searchFriend = () => {
       }
       isShowHiddenUser.value = true;
     });
+
   }
 };
 //取消寄送好友邀請
@@ -301,15 +323,26 @@ let cancelDelivery = () => {
   searchUser.value = clear;
 };
 let addFriend = () => {
-  userStore.addFriend(searchUser.value.sub).then((res) => {
-    Swal.fire({
-      position: "top-center",
-      icon: "success",
-      title: `${res}`,
-      showConfirmButton: false,
-      timer: 1500,
-    }).then(() => cancelDelivery());
-  });
+  let checkAllUser = false;
+  
+  if (allUsers.value.length > 0) {
+    checkAllUser = allUsers.value.filter((res) => res.sub == searchUser.value.sub);
+  }
+  console.log(checkAllUser[0])
+  if (checkAllUser == false && checkAllUser[0] == undefined) {
+    console.log(checkAllUser)
+  }else{
+    userStore.addFriend(searchUser.value.sub).then((res) => {
+      Swal.fire({
+        position: "top-center",
+        icon: "success",
+        title: `${res}`,
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() => cancelDelivery());
+    });
+
+  }
 };
 
 // 你可能認識的人狀態
@@ -339,25 +372,40 @@ let GoPrevious = () => {
   searchUser.value = clear;
 };
 
-let confirm = (becomeFriendSub) =>{
-   
-   userStore.becomeFriends(becomeFriendSub).then((res) => {
+let confirm = (becomeFriendSub) => {
+  userStore.becomeFriends(becomeFriendSub).then((res) => {
     Swal.fire({
       position: "top-center",
       icon: "success",
       title: `${res}`,
       showConfirmButton: false,
       timer: 1500,
-    }).then(() => userStore.removeHowAboutThisPerson(becomeFriendSub,'confirm'));
+    }).then(() =>
+      userStore.removeHowAboutThisPerson(becomeFriendSub, "confirm")
+    );
+    userStore.getAllUsers(sub.value);
   });
-}
+};
 // 取消確認好友
-let unConfirm = (becomeFriendSub) =>{
-  userStore.removeHowAboutThisPerson(becomeFriendSub,'unConfirm')
-} 
+let unConfirm = (becomeFriendSub) => {
+  userStore.removeHowAboutThisPerson(becomeFriendSub, "unConfirm");
+};
 
 
+// 確認是否已成為朋友
+let checkBefriend = (searchUserKey) =>{
+  // searchUserKey (fastId)
+  let check = false;
+  if(allUsers.value !== undefined && allUsers.value.length > 0){
 
+    allUsers.value.forEach((res)=>{
+      if(res.fastChatId == searchUserKey){
+        check = true;
+      }
+    })
+  }
+  return check
+}
 </script>
 
 <style scoped>
