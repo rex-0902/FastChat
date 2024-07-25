@@ -18,7 +18,7 @@
               alt=""
             />
             <div class="text-left w-full pl-2 text-white">
-              {{ userStore.lastName }}{{ userStore.firstName }}
+              {{ userStore?.lastName }}{{ userStore?.firstName }}
             </div>
             <div class="flex items-center justify-center">
               <AccountGroupIcon @click="showFindFriends = true" fillColor="#FFF" class="mr-6 cursor-pointer" />

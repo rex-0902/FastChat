@@ -14,10 +14,10 @@
         :src="userDataForChat[0].picture"
       />
       <div
-        v-if="userDataForChat[0] && userDataForChat[0].firstName"
+        v-if="userDataForChat[0] && userDataForChat[0]?.firstName"
         class="text-white ml-1 font-semibold"
       >
-        {{ userDataForChat[0].lastName }}{{ userDataForChat[0].firstName }}
+        {{ userDataForChat[0]?.lastName }}{{ userDataForChat[0]?.firstName }}
       </div>
     </div>
 

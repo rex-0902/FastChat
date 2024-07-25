@@ -8,10 +8,10 @@
               <div class="w-full">
 
                   <div class="flex justify-between items-center">
-                      <div class="text-[15px] text-slate-300"> {{  user.lastName  }}{{  user.firstName  }}</div>
+                      <div class="text-[15px] text-slate-300"> {{  user?.lastName  }}{{  user?.firstName  }}</div>
                   </div>
                   <div class="flex items-center">
-                      <div class="text-[15px] text-slate-400">Hi, 我是{{  user.lastName  }}{{  user.firstName  }} !</div>
+                      <div class="text-[15px] text-slate-400">Hi, 我是{{  user?.lastName  }}{{  user?.firstName  }} !</div>
                   </div>
 
               </div>
@@ -69,8 +69,8 @@ const createNewChat = async (user) => {
         id: checkIsThereAConversationId(sub.value,user.sub).id,
         sub1: sub.value,
         sub2: user.sub,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstName: user?.firstName,
+        lastName: user?.lastName,
         picture: user.picture,
     })
     try {
@@ -98,8 +98,8 @@ const createNewChat = async (user) => {
         id: '',
         sub1: sub.value,
         sub2: user.sub,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstName: user?.firstName,
+        lastName: user?.lastName,
         picture: user.picture,
     })
   }

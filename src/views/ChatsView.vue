@@ -40,8 +40,8 @@ const openChat = async (chat) => {
         id: chat.id,
         sub1: chat.sub1,
         sub2: chat.sub2,
-        firstName: chat.user.firstName,
-        lastName: chat.user.lastName,
+        firstName: chat.user?.firstName,
+        lastName: chat.user?.lastName,
         picture: chat.user.picture,
     })
     try {
