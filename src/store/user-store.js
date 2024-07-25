@@ -19,7 +19,7 @@ import {
   query,
 } from "firebase/firestore";
 
-axios.defaults.baseURL = "https://fastchat-mon.zeabur.app/";
+axios.defaults.baseURL = "https://fastchat-mon.zeabur.internal:8080/";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
