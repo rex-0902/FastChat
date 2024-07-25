@@ -8,9 +8,7 @@ const client = new OAuth2Client(
 );
 
 app.use(bodyParser.json());
-app.use(cors({
-  origin: 'https://fastchat.zeabur.app'
-}));
+app.use(cors());
 
 app.post("/api/google-login", async (req, res) => {
 
