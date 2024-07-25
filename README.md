@@ -3,7 +3,7 @@
 本專案是一個使用 Vite、Vue 3、Pinia、Google Firebase 和 Google Auth 等其他套件開發的聊天網站。此網站旨在提供即時聊天功能，用戶可以註冊、登入並與其他用戶進行實時交流。
 
 
-## Recommended IDE Setup
+## 技術說明
 
 Vite：作為構建工具，提供快速的開發和構建速度。
 Vue 3：前端框架，使用 <script setup> 語法進行組件開發。
