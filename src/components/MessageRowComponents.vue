@@ -7,7 +7,7 @@
       
         <div class="flex justify-between items-center">
           <div class="text-[15px] text-gray-600">
-            {{ chat.user?.lastName }}{{ chat.user?.firstName }}
+            {{ chat.user.lastName }}{{ chat.user.firstName }}
           </div>
           <div class="text-[12px] text-gray-600">
             {{ lastCreatedAt(chat) }}

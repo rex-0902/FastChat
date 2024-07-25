@@ -67,7 +67,7 @@
               class="w-16 h-16 rounded-full mx-auto mb-2"
             />
             <div class="text-center">
-              {{ searchUser?.lastName }}{{ searchUser?.firstName }}
+              {{ searchUser.lastName }}{{ searchUser.firstName }}
             </div>
             <div class="mt-6 flex justify-between">
               <button
@@ -92,7 +92,7 @@
               class="w-16 h-16 rounded-full mx-auto mb-2"
             />
             <div class="text-center">
-              {{ searchUser?.lastName }}{{ searchUser?.firstName }}
+              {{ searchUser.lastName }}{{ searchUser.firstName }}
             </div>
             <div class="text-center">已成為好友</div>
           </div>
@@ -104,7 +104,7 @@
               class="w-16 h-16 rounded-full mx-auto mb-2"
             />
             <div class="text-center">
-              {{ searchUser?.lastName }}{{ searchUser?.firstName }}
+              {{ searchUser.lastName }}{{ searchUser.firstName }}
             </div>
             <div class="text-center">這是你自己</div>
           </div>
@@ -163,7 +163,7 @@
         <h3 v-else class="text-center">現在沒有需要確認的朋友!</h3>
         <div
           v-for="Person in howAboutThisPerson"
-          :key="Person?.firstName"
+          :key="Person.firstName"
           class="mt-4 p-4 bg-gray-100 rounded-md shadow-md flex items-center justify-between"
         >
           <div class="flex flex-col items-center">
@@ -173,8 +173,8 @@
               class="w-16 h-16 rounded-full mb-2"
             />
             <h3>
-              {{ Person?.lastName
-              }}{{ Person?.firstName }}
+              {{ Person.lastName
+              }}{{ Person.firstName }}
             </h3>
           </div>
           <div class="flex flex-row gap-4">
@@ -263,15 +263,15 @@ let showAddFriend = () => {
 let searchFriend = () => {
   // 先重置
   searchUser.value.fastChatId = null;
-  searchUser.value?.firstName = null;
-  searchUser.value?.lastName = null;
+  searchUser.value.firstName = null;
+  searchUser.value.lastName = null;
   searchUser.value.picture = null;
   searchUser.value.sub = null;
 
   if (searchUserKey.value == userID.value) {
     searchUser.value.fastChatId = userID.value;
-    searchUser.value?.firstName = firstName.value;
-    searchUser.value?.lastName = lastName.value;
+    searchUser.value.firstName = firstName.value;
+    searchUser.value.lastName = lastName.value;
     searchUser.value.picture = picture.value;
     searchUser.value.sub = sub.value;
     addFriendState.value = "same";
@@ -281,8 +281,8 @@ let searchFriend = () => {
     allUsers.value.forEach((res)=>{
       if(res.fastChatId == searchUserKey.value){
         searchUser.value.fastChatId = res.userID;
-        searchUser.value?.firstName = res?.firstName;
-        searchUser.value?.lastName = res?.lastName;
+        searchUser.value.firstName = res.firstName;
+        searchUser.value.lastName = res.lastName;
         searchUser.value.picture = res.picture;
         searchUser.value.sub = res.sub;
         addFriendState.value = "alreadyAfriend";
@@ -293,8 +293,8 @@ let searchFriend = () => {
     userStore.searchFriend(searchUserKey.value).then((res) => {
       if (res !== null) {
         searchUser.value.fastChatId = res.fastChatId;
-        searchUser.value?.firstName = res?.firstName;
-        searchUser.value?.lastName = res?.lastName;
+        searchUser.value.firstName = res.firstName;
+        searchUser.value.lastName = res.lastName;
         searchUser.value.picture = res.picture;
         searchUser.value.sub = res.sub;
 

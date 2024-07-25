@@ -20,6 +20,7 @@ import {
 } from "firebase/firestore";
 
 axios.defaults.baseURL = "https://fastchat-mon.zeabur.app/";
+// axios.defaults.baseURL = "http://localhost:4001/";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -72,8 +73,8 @@ export const useUserStore = defineStore("user", {
    
           let user = {
             email: res.email,
-            firstName: res?.firstName,
-            lastName: res?.lastName,
+            firstName: res.firstName,
+            lastName: res.lastName,
             picture: res.picture,
             sub: res.sub,
             fastChatId: res.fastChatId,
@@ -94,8 +95,8 @@ export const useUserStore = defineStore("user", {
       this.sub = docSnap.data().sub;
       this.email = docSnap.data().email;
       this.picture = docSnap.data().picture;
-      this?.firstName = docSnap.data()?.firstName;
-      this?.lastName = docSnap.data()?.lastName;
+      this.firstName = docSnap.data().firstName;
+      this.lastName = docSnap.data().lastName;
 
       let allusersArray = [];
 
@@ -104,8 +105,8 @@ export const useUserStore = defineStore("user", {
       
           let user = {
             email: res.email,
-            firstName: res?.firstName,
-            lastName: res?.lastName,
+            firstName: res.firstName,
+            lastName: res.lastName,
             picture: res.picture,
             sub: res.sub,
             fastChatId: res.fastChatId,
@@ -156,8 +157,8 @@ export const useUserStore = defineStore("user", {
           sub: this.sub,
           email: this.email,
           picture: this.picture,
-          firstName: this?.firstName,
-          lastName: this?.lastName,
+          firstName: this.firstName,
+          lastName: this.lastName,
           fastChatId: this.userID,
         };
       
@@ -249,8 +250,8 @@ export const useUserStore = defineStore("user", {
             this.sub = res.data.sub;
             this.email = res.data.email;
             this.picture = res.data.picture;
-            this?.firstName = res.data.given_name;
-            this?.lastName = res.data.family_name;
+            this.firstName = res.data.given_name;
+            this.lastName = res.data.family_name;
             this.loginStatus = true;
             router.push("/");
           }
@@ -378,8 +379,8 @@ export const useUserStore = defineStore("user", {
           sub: this.sub,
           email: this.email,
           picture: this.picture,
-          firstName: this?.firstName,
-          lastName: this?.lastName,
+          firstName: this.firstName,
+          lastName: this.lastName,
           fastChatId: this.userID,
         };
         if (existingUserIndex !== -1 && existingUserIndex !== undefined) {
@@ -410,8 +411,8 @@ export const useUserStore = defineStore("user", {
             sub: FriendDocSnapshot.data().sub,
             email: FriendDocSnapshot.data().email,
             picture: FriendDocSnapshot.data().picture,
-            firstName: FriendDocSnapshot.data()?.firstName,
-            lastName: FriendDocSnapshot.data()?.lastName,
+            firstName: FriendDocSnapshot.data().firstName,
+            lastName: FriendDocSnapshot.data().lastName,
             fastChatId: FriendDocSnapshot.data().fastChatId,
           };
           if (existingUserIndex == -1 || existingUserIndex == undefined) {
@@ -487,12 +488,17 @@ export const useUserStore = defineStore("user", {
       this.howAboutThisPerson =
         docSnap.data().howAboutThisPerson;
     },
+    async clearCurrentChat(){
+    
+      this.currentChat = null;
+      this.userDataForChat = [];
+    },
     logout() {
       this.sub = "";
       this.email = "";
       this.picture = "";
-      this?.firstName = "";
-      this?.lastName = "";
+      this.firstName = "";
+      this.lastName = "";
       this.allUsers = [];
       this.chats = [];
       this.userDataForChat = [];

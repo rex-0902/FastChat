@@ -14,10 +14,10 @@
         :src="userDataForChat[0].picture"
       />
       <div
-        v-if="userDataForChat[0] && userDataForChat[0]?.firstName"
+        v-if="userDataForChat[0] && userDataForChat[0].firstName"
         class="text-white ml-1 font-semibold"
       >
-        {{ userDataForChat[0]?.lastName }}{{ userDataForChat[0]?.firstName }}
+        {{ userDataForChat[0].lastName }}{{ userDataForChat[0].firstName }}
       </div>
     </div>
 
@@ -45,7 +45,7 @@
             class="inline-block bg-white p-2 rounded-md my-1 glightbox"
             :href="msg.message"
           >
-            <img :src="msg.message" alt="" class="w-[200px]" />
+            <img :src="msg.message" alt="" class="w-[200px] " />
           </a>
         </div>
 
@@ -68,8 +68,13 @@
             class="inline-block bg-green-200 p-2 rounded-md my-1 glightbox"
             :href="msg.message"
           >
-            <img :src="msg.message" alt="" class="w-[200px]" />
+            <img :src="msg.message" alt="" class="w-[200px] " />
           </a>
+          <video   v-if="msg.type == 'video'" width="320" height="240" style="    max-height: 300px;" controls>
+            <source :src="msg.message" type="video/mp4">
+            <source :src="msg.message" type="video/ogg">
+          
+          </video>
         </div>
       </div>
     </div>
@@ -203,6 +208,7 @@
         />
       </div>
       <input
+      @focus="scrollToEnd"
         v-model="message"
         class="mr-1 shadow apperance-none rounded-lg w-full py-3 px-4 bg-[#3b3b3b] text-white  leading-tight focus:outline-none focus:shadow-outline"
         autocomplete="off"
@@ -264,7 +270,8 @@ let disableBtn = ref(false);
 watch(
   () => currentChat.value,
   (chat) => {
-    if (chat.length) {
+  
+    if (chat?.length) {
       setTimeout(() => {
         let objDiv = document.getElementById("MessagesSection");
         objDiv.scrollTop = objDiv.scrollHeight;
@@ -280,7 +287,11 @@ const uploadImage = async (event) => {
   const file = event.target.files[0];
  
   if (!file) return;
- 
+
+  let fileType = 'img'
+ if(file.type.includes("video")){
+  fileType = 'video'
+ }
   // 生成唯一文件名稱
   const uniqueFileName = `${uuid()}_${file.name}`;
 
@@ -301,7 +312,7 @@ const uploadImage = async (event) => {
         sub: sub.value,
         message: downloadURL,
         createdAt: Date.now(),
-        type: "img",
+        type: fileType,
       }),
     });
   } else {
@@ -317,7 +328,7 @@ const uploadImage = async (event) => {
           sub: sub.value,
           message: downloadURL,
           createdAt: Date.now(),
-          type: "img",
+          type: fileType,
         },
       ],
     });
@@ -361,6 +372,13 @@ const sendMessage = async () => {
 
   disableBtn.value = false;
 };
+
+const scrollToEnd = async () =>{
+  window.scroll({
+    top: document.body.scrollHeight,
+    behavior: 'smooth'
+});
+}
 
 let isShowEmoji = ref(false);
 
