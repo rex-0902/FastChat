@@ -21,9 +21,13 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref ,defineProps} from 'vue'
 import { useUserStore } from "@/store/user-store";
 import { storeToRefs } from "pinia";
+
+const props = defineProps({
+    changeCollapseButton: Function
+})
 
 
 const userStore = useUserStore()
@@ -47,7 +51,7 @@ const checkIsThereAConversationId = (sub1,sub2) =>{
 
 let result = chats.value
 result.filter(item => item.sub1 === sub1 && item.sub2 === sub2)
-console.log(result[0])
+
 let finResult = 0;
 
 if(result[0] !== undefined){
@@ -59,7 +63,7 @@ return finResult
 const createNewChat = async (user) => {
     
   userDataForChat.value = []
-  console.log(checkIsThereAConversationId(sub.value,user.sub).id)
+ 
   if(checkIsThereAConversationId(sub.value,user.sub) !== 0 ){
     userDataForChat.value.push({
         id: checkIsThereAConversationId(sub.value,user.sub).id,
@@ -99,6 +103,7 @@ const createNewChat = async (user) => {
         picture: user.picture,
     })
   }
+  props.changeCollapseButton(true)
 }
 
 

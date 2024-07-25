@@ -163,30 +163,30 @@
         <h3 v-else class="text-center">現在沒有需要確認的朋友!</h3>
         <div
           v-for="Person in howAboutThisPerson"
-          :key="Person.mapValue.fields.firstName.stringValue"
+          :key="Person.firstName"
           class="mt-4 p-4 bg-gray-100 rounded-md shadow-md flex items-center justify-between"
         >
           <div class="flex flex-col items-center">
             <img
-              :src="Person.mapValue.fields.picture.stringValue"
+              :src="Person.picture"
               alt=""
               class="w-16 h-16 rounded-full mb-2"
             />
             <h3>
-              {{ Person.mapValue.fields.lastName.stringValue
-              }}{{ Person.mapValue.fields.firstName.stringValue }}
+              {{ Person.lastName
+              }}{{ Person.firstName }}
             </h3>
           </div>
           <div class="flex flex-row gap-4">
             <button
-              @click="confirm(Person.mapValue.fields.sub.stringValue)"
+              @click="confirm(Person.sub)"
               class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
             >
               確認
             </button>
             <button
               class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
-              @click="unConfirm(Person.mapValue.fields.sub.stringValue)"
+              @click="unConfirm(Person.sub)"
             >
               移除
             </button>
@@ -250,6 +250,7 @@ let searchUser = ref({
   picture: null,
   sub: null,
   email: null,
+  fastChatId:null
 });
 
 let isShowHiddenUser = ref(false);
@@ -291,11 +292,11 @@ let searchFriend = () => {
   }else{
     userStore.searchFriend(searchUserKey.value).then((res) => {
       if (res !== null) {
-        searchUser.value.fastChatId = res.fastChatId.stringValue;
-        searchUser.value.firstName = res.firstName.stringValue;
-        searchUser.value.lastName = res.lastName.stringValue;
-        searchUser.value.picture = res.picture.stringValue;
-        searchUser.value.sub = res.sub.stringValue;
+        searchUser.value.fastChatId = res.fastChatId;
+        searchUser.value.firstName = res.firstName;
+        searchUser.value.lastName = res.lastName;
+        searchUser.value.picture = res.picture;
+        searchUser.value.sub = res.sub;
 
         addFriendState.value = "canJoin";
       }
@@ -328,10 +329,8 @@ let addFriend = () => {
   if (allUsers.value.length > 0) {
     checkAllUser = allUsers.value.filter((res) => res.sub == searchUser.value.sub);
   }
-  console.log(checkAllUser[0])
+
   if (checkAllUser == false && checkAllUser[0] == undefined) {
-    console.log(checkAllUser)
-  }else{
     userStore.addFriend(searchUser.value.sub).then((res) => {
       Swal.fire({
         position: "top-center",
@@ -341,7 +340,6 @@ let addFriend = () => {
         timer: 1500,
       }).then(() => cancelDelivery());
     });
-
   }
 };
 
@@ -374,6 +372,7 @@ let GoPrevious = () => {
 
 let confirm = (becomeFriendSub) => {
   userStore.becomeFriends(becomeFriendSub).then((res) => {
+    // 刪除待確認名單並更新好友
     Swal.fire({
       position: "top-center",
       icon: "success",

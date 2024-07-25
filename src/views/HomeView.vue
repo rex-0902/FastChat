@@ -57,7 +57,7 @@
          
         </div>
         <template v-if="showFindFriends">
-          <FindFriendsView   />
+          <FindFriendsView  :changeCollapseButton='changeCollapseButton'  />
         </template>
         <div v-else >
           <ChatsView :changeCollapseButton='changeCollapseButton' />

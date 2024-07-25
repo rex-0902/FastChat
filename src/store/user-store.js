@@ -19,9 +19,6 @@ import {
   query,
 } from "firebase/firestore";
 
-
-
-
 axios.defaults.baseURL = "http://localhost:4001/";
 
 export const useUserStore = defineStore("user", {
@@ -66,79 +63,67 @@ export const useUserStore = defineStore("user", {
       }
     },
     async getAllUsers(userSub) {
-  
       let allusersArray = [];
-      
+
       const docRef = doc(db, "users", userSub);
       const docSnap = await getDoc(docRef);
-      if(docSnap._document.data.value.mapValue.fields?.allFriends?.arrayValue?.values?.length > 0){
-        docSnap._document.data.value.mapValue.fields.allFriends.arrayValue.values.forEach(
-          (res) => {
-            console.log(res)
-            let user = {
-              email: res.mapValue.fields.email.stringValue,
-              firstName: res.mapValue.fields.firstName.stringValue,
-              lastName: res.mapValue.fields.lastName.stringValue,
-              picture: res.mapValue.fields.picture.stringValue,
-              sub: res.mapValue.fields.sub.stringValue,
-              fastChatId: res.mapValue.fields.fastChatId.stringValue,
-            };
-            allusersArray.push(user);
-          }
-        );
+      if (docSnap.data().allFriends?.length > 0) {
+        docSnap.data().allFriends.forEach((res) => {
+   
+          let user = {
+            email: res.email,
+            firstName: res.firstName,
+            lastName: res.lastName,
+            picture: res.picture,
+            sub: res.sub,
+            fastChatId: res.fastChatId,
+          };
+          allusersArray.push(user);
+        });
 
         this.allUsers = allusersArray;
-      }else{
-        this.allUsers = '';
+      } else {
+        this.allUsers = "";
       }
       this.showFindFriends = true;
     },
     async checkUserInfo(id, router) {
-
       const docRef = doc(db, "users", id);
       const docSnap = await getDoc(docRef);
-     
-      this.sub = docSnap._document.data.value.mapValue.fields.sub.stringValue;
-      this.email =
-        docSnap._document.data.value.mapValue.fields.email.stringValue;
-      this.picture =
-        docSnap._document.data.value.mapValue.fields.picture.stringValue;
-      this.firstName =
-        docSnap._document.data.value.mapValue.fields.firstName.stringValue;
-      this.lastName =
-        docSnap._document.data.value.mapValue.fields.lastName.stringValue;
+
+      this.sub = docSnap.data().sub;
+      this.email = docSnap.data().email;
+      this.picture = docSnap.data().picture;
+      this.firstName = docSnap.data().firstName;
+      this.lastName = docSnap.data().lastName;
 
       let allusersArray = [];
+
+      if (docSnap.data()?.allFriends?.length > 0) {
+        docSnap.data().allFriends.forEach((res) => {
       
-      if(docSnap._document.data.value.mapValue.fields?.allFriends?.arrayValue?.values?.length > 0){
-        docSnap._document.data.value.mapValue.fields.allFriends.arrayValue.values.forEach(
-          (res) => {
-            console.log(res)
-            let user = {
-              email: res.mapValue.fields.email.stringValue,
-              firstName: res.mapValue.fields.firstName.stringValue,
-              lastName: res.mapValue.fields.lastName.stringValue,
-              picture: res.mapValue.fields.picture.stringValue,
-              sub: res.mapValue.fields.sub.stringValue,
-              fastChatId: res.mapValue.fields.fastChatId.stringValue,
-            };
-            allusersArray.push(user);
-          }
-        );
+          let user = {
+            email: res.data().email,
+            firstName: res.data().firstName,
+            lastName: res.data().lastName,
+            picture: res.data().picture,
+            sub: res.data().sub,
+            fastChatId: res.data().fastChatId,
+          };
+          allusersArray.push(user);
+        });
 
         this.allUsers = allusersArray;
-      }else{
-        this.allUsers = '';
+      } else {
+        this.allUsers = "";
       }
 
-      this.userID =
-        docSnap._document.data.value.mapValue.fields.fastChatId.stringValue;
-      this.howAboutThisPerson =
-        docSnap._document.data.value.mapValue.fields.howAboutThisPerson.arrayValue.values;
+      this.userID = docSnap.data().fastChatId;
+      this.howAboutThisPerson = docSnap.data().howAboutThisPerson;
       this.loginStatus = true;
       router.push("/");
     },
-   
+
     async searchFriend(addUserId) {
       const fastChatCollection = collection(db, "fastChatId");
       const fastChatSnapshot = await getDocs(fastChatCollection);
@@ -146,8 +131,7 @@ export const useUserStore = defineStore("user", {
 
       for (const fastChatDoc of fastChatSnapshot.docs) {
         if (fastChatDoc.id === addUserId) {
- 
-          matchingUsers = fastChatDoc._document.data.value.mapValue.fields;
+          matchingUsers = fastChatDoc.data();
         }
       }
       return matchingUsers;
@@ -160,20 +144,24 @@ export const useUserStore = defineStore("user", {
       if (userDocSnapshot.exists()) {
         let howAboutThisPerson =
           userDocSnapshot.data().howAboutThisPerson || [];
-        console.log(howAboutThisPerson)
+     
         // 查找是否已有相同 fastChatId
-        const existingUserIndex = howAboutThisPerson.findIndex(
-          (user) => user.sub === this.sub
-        );
-  
+        let existingUserIndex = undefined;
+        if (howAboutThisPerson.length !== 0) {
+          existingUserIndex = howAboutThisPerson.findIndex(
+            (user) => user.sub === this.sub
+          );
+        }
         let userInfo = {
           sub: this.sub,
           email: this.email,
           picture: this.picture,
           firstName: this.firstName,
           lastName: this.lastName,
+          fastChatId: this.userID,
         };
-        if (existingUserIndex !== -1) {
+      
+        if (existingUserIndex !== -1 && existingUserIndex !== undefined) {
           // 覆蓋已有對象
           msg = "已送出好友!";
         } else {
@@ -181,8 +169,7 @@ export const useUserStore = defineStore("user", {
           howAboutThisPerson.push(userInfo);
           msg = "好友邀請已送出";
         }
-       
-
+ 
         // 更新文檔
         await updateDoc(userDocRef, { howAboutThisPerson });
       } else {
@@ -378,26 +365,32 @@ export const useUserStore = defineStore("user", {
       const FriendDocSnapshot = await getDoc(FriendDocRef);
       let msg = "";
       if (FriendDocSnapshot.exists()) {
-        let FriendAllUsers = FriendDocSnapshot.data().allUsers || [];
+        let FriendAllUsers = FriendDocSnapshot.data().allFriends || [];
         // 查找是否已有相同 fastChatId
-        const existingUserIndex = FriendAllUsers.findIndex(
-          (user) => user.sub === this.sub
-        );
+      
+        let existingUserIndex = undefined;
+        if (FriendAllUsers.length !== 0) {
+          existingUserIndex = FriendAllUsers.findIndex(
+            (user) => user.sub === this.sub
+          );
+        }
         let userInfo = {
           sub: this.sub,
           email: this.email,
           picture: this.picture,
           firstName: this.firstName,
           lastName: this.lastName,
+          fastChatId: this.userID,
         };
-        if (existingUserIndex !== -1) {
+        if (existingUserIndex !== -1 && existingUserIndex !== undefined) {
           // 覆蓋已有對象
           msg = "已成為好友!";
         } else {
           // 增加新對象
           FriendAllUsers.push(userInfo);
-          msg = "已成為好友!";
+          msg = "好友已增加";
         }
+       
         // 更新朋友的好友欄位
         await updateDoc(FriendDocRef, { allFriends: FriendAllUsers });
 
@@ -405,25 +398,24 @@ export const useUserStore = defineStore("user", {
         const userDocRef = doc(db, "users", this.sub);
         const userDocSnapshot = await getDoc(userDocRef);
         if (userDocSnapshot.exists()) {
-          let userAllUsers = userDocSnapshot.data().allUsers || [];
+          let userAllUsers = userDocSnapshot.data().allFriends || [];
+        
+          let existingFriendIndex = undefined;
+          if (userAllUsers.length !== 0) {
+            existingFriendIndex = userAllUsers.findIndex(
+              (user) => user.sub === this.sub
+            );
+          }
           let FriendInfo = {
-            sub: FriendDocSnapshot._document.data.value.mapValue.fields.sub
-              .stringValue,
-            email:
-              FriendDocSnapshot._document.data.value.mapValue.fields.email
-                .stringValue,
-            picture:
-              FriendDocSnapshot._document.data.value.mapValue.fields.picture
-                .stringValue,
-            firstName:
-              FriendDocSnapshot._document.data.value.mapValue.fields.firstName
-                .stringValue,
-            lastName:
-              FriendDocSnapshot._document.data.value.mapValue.fields.lastName
-                .stringValue,
+            sub: FriendDocSnapshot.data().sub,
+            email: FriendDocSnapshot.data().email,
+            picture: FriendDocSnapshot.data().picture,
+            firstName: FriendDocSnapshot.data().firstName,
+            lastName: FriendDocSnapshot.data().lastName,
+            fastChatId: FriendDocSnapshot.data().fastChatId,
           };
-          if (existingUserIndex == -1) {
-            // 增加新對象
+          if (existingUserIndex == -1 || existingUserIndex == undefined) {
+        
             userAllUsers.push(FriendInfo);
           }
           await updateDoc(userDocRef, { allFriends: userAllUsers });
@@ -438,8 +430,8 @@ export const useUserStore = defineStore("user", {
                 const index = howAboutThisPerson.findIndex(
                   (obj) =>
                     obj.sub ===
-                    FriendDocSnapshot._document.data.value.mapValue.fields.sub
-                      .stringValue
+                    FriendDocSnapshot.data().sub
+      
                 );
 
                 // Step 4: Remove the object if found
@@ -471,35 +463,29 @@ export const useUserStore = defineStore("user", {
       let removedObjects = [];
 
       // 遍歷陣列，找到需要刪除的物件
-      for(let i = 0 ; i < this.howAboutThisPerson.length; i++){
- 
+      for (let i = 0; i < this.howAboutThisPerson.length; i++) {
         if (
-          this.howAboutThisPerson[i].mapValue.fields.sub.stringValue === becomeFriendSub
+          this.howAboutThisPerson[i].sub ===
+          becomeFriendSub
         ) {
-      
           // 記錄被刪除的物件
           removedObjects.push(this.howAboutThisPerson[i]);
           // 刪除物件
           this.howAboutThisPerson.splice(i, 1);
           // 20240721
-       
+
           const dbDocRef = doc(db, "users", this.sub);
           await updateDoc(dbDocRef, {
-            howAboutThisPerson: this.howAboutThisPerson
+            howAboutThisPerson: this.howAboutThisPerson,
           });
-      
-       
         }
       }
-     
-      
     },
     async getHowAboutThisPerson() {
-    
       const docRef = doc(db, "users", this.sub);
       const docSnap = await getDoc(docRef);
       this.howAboutThisPerson =
-      docSnap._document.data.value.mapValue.fields.howAboutThisPerson.arrayValue.values;
+        docSnap.data().howAboutThisPerson;
     },
     logout() {
       this.sub = "";
