@@ -16,7 +16,7 @@
           Fast Chat
         </div>
         <div
-          class="w-full flex flex-col gap-4 justify-center bg-[#fff] p-3 rounded-md"
+          class="w-full flex flex-col gap-4 justify-center bg-[#fff] p-3 rounded-md items-center"
         >
           <GoogleLogin :callback="callback" />
         </div>
