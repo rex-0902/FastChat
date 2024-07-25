@@ -1,6 +1,7 @@
 # fast Chat
 
-本專案是一個使用 Vite、Vue 3、Pinia、Google Firebase 和 Google Auth 等其他套件開發的聊天網站。此網站旨在提供即時聊天功能，用戶可以註冊、登入並與其他用戶進行實時交流。
+本專案是一個使用 Vite、Vue 3、Pinia、Google Firebase 和 Google Auth 等其他套件開發的聊天網站。  
+此網站旨在提供即時聊天功能，用戶可以註冊、登入並與其他用戶進行實時交流。
 
 
 ## 技術說明
