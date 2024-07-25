@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="referrer" content="origin">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="referrer" content="origin" />
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fast Chat</title>
   </head>
   <body class="h-full">
@@ -13,8 +15,37 @@
     <script type="module" src="/src/main.js"></script>
   </body>
   <style>
-    body.h-full{
-      height: 100%!important;
+    html,
+    body {
+      touch-action: none;
+    }
+    body.h-full {
+      height: 100% !important;
     }
   </style>
+  <script>
+    document.addEventListener(
+      "touchstart",
+      function (event) {
+        if (event.touches.length > 1) {
+          event.preventDefault();
+        }
+      },
+      { passive: false }
+    );
+
+    let lastTouchEndTime = 0;
+    document.addEventListener(
+      "touchend",
+      (event) => {
+        const now = new Date().getTime();
+        if (now - lastTouchEndTime <= 300) {
+          // 偵測時間差是否小於 300ms
+          event.preventDefault();
+        }
+        lastTouchEndTime = now;
+      },
+      false
+    );
+  </script>
 </html>
