@@ -45,11 +45,11 @@ export const useUserStore = defineStore("user", {
       return allFastChatIds.docs.some((doc) => doc.id === data);
     },
     async getUserDetailsFromGoogle(data, router) {
-      try {
+
         let res = await axios.post("api/google-login", {
           token: data.credential,
         });
-
+        console.log(res)
         let userExists = await this.checkIfUserExists(res.data.sub);
         // 檢查用戶是否註冊
         if (!userExists) {
@@ -58,9 +58,7 @@ export const useUserStore = defineStore("user", {
           // await this.getAllUsers();
           await this.checkUserInfo(res.data.sub, router);
         }
-      } catch (error) {
-        console.log(error);
-      }
+     
     },
     async getAllUsers(userSub) {
       let allusersArray = [];
