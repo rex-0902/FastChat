@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-
+const cors = require('cors');
 const bodyParser = require("body-parser");
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(
@@ -8,7 +8,7 @@ const client = new OAuth2Client(
 );
 
 app.use(bodyParser.json());
-
+app.use(cors());
 
 app.post("/api/google-login", async (req, res) => {
 
